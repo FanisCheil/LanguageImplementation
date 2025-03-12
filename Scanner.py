@@ -44,33 +44,68 @@ class Scanner:
         self._col = 1
 
     def scan_tokens(self) -> List[Token]:
+        keywords = {"true": TokenType.BOOLEAN, "false": TokenType.BOOLEAN, "and": TokenType.AND, "or": TokenType.OR}
+        
         while (c := self.advance()) != "": 
-            if c.isspace():  # ✅ Skip whitespace properly
+            if c.isspace():  
                 continue
-            elif c == "+":
+            elif c == "+":  
                 self.tokens.append(Token(TokenType.PLUS, c, None, self._line, self._col))
-            elif c == "-":
+            elif c == "-":  
                 self.tokens.append(Token(TokenType.MINUS, c, None, self._line, self._col))
-            elif c == "*" and self.peek() == "*":
+            elif c == "*" and self.peek() == "*":  
                 self.advance()  
                 self.tokens.append(Token(TokenType.EXP, "**", None, self._line, self._col))
-            elif c == "*":
+            elif c == "*":  
                 self.tokens.append(Token(TokenType.TIMES, c, None, self._line, self._col))
-            elif c == "/":
+            elif c == "/":  
                 self.tokens.append(Token(TokenType.DIV, c, None, self._line, self._col))
-            elif c == "%":
+            elif c == "%":  
                 self.tokens.append(Token(TokenType.MOD, c, None, self._line, self._col))
-            elif c == "(":
+            elif c == "(":  
                 self.tokens.append(Token(TokenType.LEFT_PAREN, c, None, self._line, self._col))
-            elif c == ")":
+            elif c == ")":  
                 self.tokens.append(Token(TokenType.RIGHT_PAREN, c, None, self._line, self._col))
-            elif c.isdigit():
+            elif c == "!":
+                if self.peek() == "=":
+                    self.advance()
+                    self.tokens.append(Token(TokenType.BANG_EQUAL, "!=", None, self._line, self._col))
+                else:
+                    self.tokens.append(Token(TokenType.BANG, c, None, self._line, self._col))
+            elif c == "=":
+                if self.peek() == "=":
+                    self.advance()
+                    self.tokens.append(Token(TokenType.EQUAL_EQUAL, "==", None, self._line, self._col))
+                else:
+                    self.tokens.append(Token(TokenType.EQUAL, c, None, self._line, self._col))
+            elif c == "<":
+                if self.peek() == "=":
+                    self.advance()
+                    self.tokens.append(Token(TokenType.LESS_EQUAL, "<=", None, self._line, self._col))
+                else:
+                    self.tokens.append(Token(TokenType.LESS, c, None, self._line, self._col))
+            elif c == ">":
+                if self.peek() == "=":
+                    self.advance()
+                    self.tokens.append(Token(TokenType.GREATER_EQUAL, ">=", None, self._line, self._col))
+                else:
+                    self.tokens.append(Token(TokenType.GREATER, c, None, self._line, self._col))
+            elif c.isdigit():  
                 self._scan_float()
-            elif c == '"':
+            elif c == '"':  
                 self._scan_string()
+            elif c.isalpha():  
+                lexeme = c
+                while self.peek().isalnum():
+                    lexeme += self.advance()
+                token_type = keywords.get(lexeme, None)
+                if token_type:
+                    self.tokens.append(Token(token_type, lexeme, lexeme == "true", self._line, self._col))
+                else:
+                    raise SyntaxError(f"Unexpected token: {lexeme}")
             elif c == "\n":
                 self._scan_newline()
-            else:  
+            else:
                 raise SyntaxError(f"Unexpected token: '{c}' at line {self._line}, column {self._col}")
 
         self.tokens.append(Token(TokenType.EOF, "", None, self._line, self._col))
