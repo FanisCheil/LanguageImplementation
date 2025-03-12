@@ -19,7 +19,34 @@ class Binary(Expression):
         debug_message = f"Evaluating: {left_value} {self.operator.lexeme} {right_value}"
         print(f"{debug_message}")
 
-        # Handle string concatenation separately
+        
+        if self.operator.type == TokenType.AND:
+            if isinstance(left_value, bool) and isinstance(right_value, bool):
+                return left_value and right_value
+            raise TypeError(f"Cannot use 'and' between {type(left_value).__name__} and {type(right_value).__name__}.")
+        elif self.operator.type == TokenType.OR:
+            if isinstance(left_value, bool) and isinstance(right_value, bool):
+                return left_value or right_value
+            raise TypeError(f"Cannot use 'or' between {type(left_value).__name__} and {type(right_value).__name__}.")
+
+        
+        if self.operator.type == TokenType.EQUAL_EQUAL:
+            return left_value == right_value
+        elif self.operator.type == TokenType.BANG_EQUAL:
+            return left_value != right_value
+        elif self.operator.type in (TokenType.LESS, TokenType.LESS_EQUAL, TokenType.GREATER, TokenType.GREATER_EQUAL):
+            if isinstance(left_value, (int, float)) and isinstance(right_value, (int, float)):
+                if self.operator.type == TokenType.LESS:
+                    return left_value < right_value
+                elif self.operator.type == TokenType.LESS_EQUAL:
+                    return left_value <= right_value
+                elif self.operator.type == TokenType.GREATER:
+                    return left_value > right_value
+                elif self.operator.type == TokenType.GREATER_EQUAL:
+                    return left_value >= right_value
+            raise TypeError(f"Cannot compare '{type(left_value).__name__}' with '{type(right_value).__name__}'.")
+
+        
         if self.operator.type == TokenType.PLUS:
             if isinstance(left_value, str) and isinstance(right_value, str):
                 return left_value + right_value  
@@ -28,7 +55,7 @@ class Binary(Expression):
             else:
                 raise TypeError(f"Cannot use '+' between {type(left_value).__name__} and {type(right_value).__name__}.")
 
-        # Ensure both operands are numbers before performing arithmetic
+        
         if not isinstance(left_value, (int, float)) or not isinstance(right_value, (int, float)):
             raise TypeError(f"Invalid operation: Cannot use '{self.operator.lexeme}' between {type(left_value).__name__} and {type(right_value).__name__}.")
 
@@ -40,7 +67,7 @@ class Binary(Expression):
             if right_value == 0:
                 raise ZeroDivisionError("Division by zero is not allowed.")
             return left_value / right_value
-        elif self.operator.type == TokenType.MOD:  
+        elif self.operator.type == TokenType.MOD:
             return left_value % right_value
         elif self.operator.type == TokenType.EXP:
             if abs(left_value) > 999 or abs(right_value) > 999:
@@ -60,7 +87,12 @@ class Unary(Expression):
     def evaluate(self):
         operand_value = self.operand.evaluate()
 
-        # Ensure unary minus is only applied to numbers
+       
+        if self.operator.type == TokenType.BANG:
+            if isinstance(operand_value, bool):
+                return not operand_value
+            raise TypeError(f"Cannot apply '!' to {type(operand_value).__name__}.")
+
         if not isinstance(operand_value, (int, float)):
             raise TypeError(f"Invalid unary operation: Cannot apply '{self.operator.lexeme}' to {type(operand_value).__name__}.")
 
@@ -76,10 +108,10 @@ class Literal(Expression):
         self.value = value
 
     def evaluate(self):
-        # Handle both string and numeric literals
-        if isinstance(self.value, (int, float, str)):
+        
+        if isinstance(self.value, (int, float, str, bool)):
             return self.value
-        raise TypeError(f"Invalid literal: Expected number or string but got {type(self.value).__name__}.")
+        raise TypeError(f"Invalid literal: Expected number, string, or boolean but got {type(self.value).__name__}.")
 
     def __str__(self) -> str:
         return f"{self.value}"
