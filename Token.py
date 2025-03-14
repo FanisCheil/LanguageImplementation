@@ -2,17 +2,15 @@ from enum import Enum
 
 class TokenType(Enum):
     # Single-character tokens
-    LEFT_PAREN = 0
-    RIGHT_PAREN = 1
-    PLUS = 2
-    MINUS = 3
-    TIMES = 4
-    DIV = 5
-    MOD = 6
-    EXP = 7
+    LEFT_PAREN = 0 # (
+    RIGHT_PAREN = 1 # )
+    PLUS = 2 # +
+    MINUS = 3 # -
+    TIMES = 4 # *
+    DIV = 5 # /
+    MOD = 6 # %
+    EXP = 7 # **
     NEWLN = 8 
-    
-    # Boolean operators
     BANG = 9  # !
     EQUAL_EQUAL = 10  # ==
     BANG_EQUAL = 11  # !=
@@ -27,7 +25,7 @@ class TokenType(Enum):
     FLOAT = 18  # Numbers
     STRING = 19  # Text inside quotes
     BOOLEAN = 20  # true, false
-    EQUAL = 21
+    EQUAL = 21 # =
     EOF = 100  # End of input
 
 class Token:
