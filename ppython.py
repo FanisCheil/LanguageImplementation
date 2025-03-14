@@ -37,7 +37,7 @@ def run(source: str) -> None:
     
     # Handle different error types dynamically
     except SyntaxError as e:
-        error(scanner._line, f"Syntax Error: {str(e)}")  # ✅ Uses scanner’s current line number
+        error(scanner._line, f"Syntax Error: {str(e)}")  
     except TypeError as e:
         error(scanner._line, f"Type Error: {str(e)}")
     except ZeroDivisionError as e:
@@ -58,7 +58,7 @@ def run_prompt() -> None:
             if not line:
                 continue  
             # If the user types exit(), terminate the program
-            if line.strip().lower() == "exit()":  # ✅ Strips spaces and handles case sensitivity
+            if line.strip().lower() == "exit()": 
                 print("\nExiting interpreter. Goodbye!\n")
                 break
             run(line)
