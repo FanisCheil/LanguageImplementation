@@ -86,7 +86,7 @@ class AST:
         #if "or" ir found
         while self._match(TokenType.OR):
             if self._at_end():  
-                raise SyntaxError(f"Missing operand after '{self._previous().lexeme}'")
+                raise SyntaxError(f"Missing operand after '{self._previous().lexeme}'") # raise an error if there is no right operand for example .....   true and
             operator = self._previous() #Store the operator "or"
 
             right = self._logical_and() #Parse the right-hand side
