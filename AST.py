@@ -159,24 +159,29 @@ class AST:
     
     #handles unary operations like -2 * 3 or !true
     def _unary(self):
-        #if it is - parse the right operand
+    # If it is '-', parse the right operand
         if self._match(TokenType.MINUS):
             operator = self._previous()
             right = self._unary()
             return Unary(operator, right)
-        
-        #if it is ! parse the right operand
+
+        # If it is '!', parse the right operand
         if self._match(TokenType.BANG):
             operator = self._previous()
             right = self._unary()
 
-            #ensure ! is only used with booleans
+            # If right is a grouping, evaluate it first
+            if isinstance(right, Grouping):
+                right = Literal(right.evaluate())
+
+            # Ensure '!' is only used with booleans
             if not isinstance(right, Literal) or not isinstance(right.value, bool):
-                raise SyntaxError(f"Syntax Error: '!' must be followed by a Boolean, found '{right.value}'.")
+                raise SyntaxError(f"Syntax Error: '!' must be followed by a Boolean, found '{right}'.")
 
             return Unary(operator, right)
 
         return self._primary()
+
 
     def _primary(self):
 
