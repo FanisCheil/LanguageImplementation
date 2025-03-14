@@ -85,6 +85,8 @@ class AST:
 
         #if "or" ir found
         while self._match(TokenType.OR):
+            if self._at_end():  
+                raise SyntaxError(f"Missing operand after '{self._previous().lexeme}'")
             operator = self._previous() #Store the operator "or"
 
             right = self._logical_and() #Parse the right-hand side
@@ -96,6 +98,8 @@ class AST:
     def _logical_and(self):
         expression = self._equality() #Left-hand side
         while self._match(TokenType.AND):
+            if self._at_end():  
+                raise SyntaxError(f"Missing operand after '{self._previous().lexeme}'")
             operator = self._previous()
             right = self._equality() #right-hand side
             expression = Binary(expression, operator, right)
