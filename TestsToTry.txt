@@ -1,0 +1,94 @@
+# Mathematical Expressions
+5 + 3
+Expected Output: 8.0
+
+10 - 2 * 3
+Expected Output: 4.0
+
+(8 / 2) + (3 * 4)
+Expected Output: 14.0
+
+5 ** 3
+Expected Output: 125.0
+
+10 % 3
+Expected Output: 1.0
+
+# Boolean Expressions
+true and false
+Expected Output: false
+
+true or false
+Expected Output: true
+
+!true
+Expected Output: false
+
+!false
+Expected Output: true
+
+5 > 3
+Expected Output: true
+
+2 < 1
+Expected Output: false
+
+3 == 3
+Expected Output: true
+
+4 != 4
+Expected Output: false
+
+# Combined Mathematical and Boolean Expressions
+(5 + 3) > (2 * 4)
+Expected Output: false
+
+(10 - 6) == (2 * 2)
+Expected Output: true
+
+(5 > 2) and (3 < 8)
+Expected Output: true
+
+(10 < 5) or (8 >= 8)
+Expected Output: true
+
+(7 % 2 == 1) and (4 / 2 == 2)
+Expected Output: true
+
+# Error Cases
+5 / 0
+Expected Output: Math Error: Division by zero is not allowed.
+
+"hello" + 5
+Expected Output: Type Error: Cannot use '+' between str and int.
+
+(5 + 3
+Expected Output: Syntax Error: Missing closing parenthesis ')'.
+
+5 + 
+Expected Output: Syntax Error: Missing operand after '+'.
+
+true and 
+Expected Output: Syntax Error: Missing operand after 'and'.
+
+5 ! 10
+Expected Output: Syntax Error: Unexpected token '!' after number.
+
+"hello" - "world"
+Expected Output: Type Error: Cannot use '-' between str and str.
+
+# Complex Expressions
+(5 + 3) * (2 + 1) - 4 / 2
+Expected Output: 22.0
+
+10 > 5 and 3 < 4 or 2 == 2
+Expected Output: true
+
+(5 * 2) == 10 and (10 / 2) != 3
+Expected Output: true
+
+!((3 > 2) and (5 < 8))
+Expected Output: false
+
+((("Hello" + "World") == ("HelloWorld")) == (("A" + "B" + "C") == ("ABC"))) and (((10 + 4 * 2) / 2) == 3**2)
+Expected Output: true
