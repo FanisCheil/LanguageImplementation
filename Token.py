@@ -20,12 +20,14 @@ class TokenType(Enum):
     GREATER_EQUAL = 15  # >=
     AND = 16  # and
     OR = 17  # or
-    
+
     # Literals
     FLOAT = 18  # Numbers
     STRING = 19  # Text inside quotes
     BOOLEAN = 20  # true, false
     EQUAL = 21 # =
+    IDENTIFIER = 22 # variable names
+    PRINT = 23 # print keyword
     EOF = 100  # End of input
 
 class Token:
@@ -34,6 +36,7 @@ class Token:
         self.lexeme: str = lexeme
         self.literal: object = literal
         self.line: int = line
+        
         self.col: int = col
 
     def __str__(self) -> str:

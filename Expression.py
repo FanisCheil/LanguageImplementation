@@ -4,7 +4,7 @@ from Token import Token, TokenType
 #Parent class for all expression types
 class Expression(ABC):
     @abstractmethod #This forces all subclasses to implement the evaluate() function
-    def evaluate(self): #Method which evaluates the expression
+    def evaluate(self, env, verbose=True): #Method which evaluates the expression
         pass
 
 #Handles operations like 5 + 3, true and false, etc.
@@ -14,13 +14,15 @@ class Binary(Expression):
         self.operator = operator #The operator(+,-,*,/,or,etc.)
         self.right = right #The right operand(another expression)
 
-    def evaluate(self):
+    def evaluate(self, env, verbose=True):
          #recurcively call evaluate() on left and right, ensuring the entire tree is resolved
-        left_value = self.left.evaluate()
-        right_value = self.right.evaluate()
+        left_value = self.left.evaluate(env, verbose)
+        right_value = self.right.evaluate(env, verbose)
 
-        debug_message = f"Evaluating: {left_value} {self.operator.lexeme} {right_value}"
-        print(f"{debug_message}")
+        
+        if verbose:
+            print(f"Evaluating: {left_value} {self.operator.lexeme} {right_value}")
+
 
         #Ensure both operands are booleans before performing logical operations(and, or)
         #If not return and error message
@@ -40,6 +42,7 @@ class Binary(Expression):
                 # "hello" == "hello", 
                 # ((5 + 5) == 10) == ("helloworld" == ("hello" + "world"))
                 # 5 == 3
+
 
         #Check if two values are not equal
         elif self.operator.type == TokenType.BANG_EQUAL:
@@ -62,14 +65,14 @@ class Binary(Expression):
         if self.operator.type == TokenType.PLUS:
             #string concatenation
             if isinstance(left_value, str) and isinstance(right_value, str):
-                return left_value + right_value  
+                return left_value + right_value
                 # "hello" + "world" -> "helloworld"
             
             #number addition
             elif isinstance(left_value, (int, float)) and isinstance(right_value, (int, float)):
                 return left_value + right_value 
                 # 5 + 3 -> 8
-            
+              
             #Prevent invlalid operations like "hello" + 5 -> error message
             else:
                 raise TypeError(f"Cannot use '+' between {type(left_value).__name__} and {type(right_value).__name__}.")
@@ -106,8 +109,8 @@ class Unary(Expression):
         self.operator = operator
         self.operand = operand
 
-    def evaluate(self):
-        operand_value = self.operand.evaluate() # recursively evaluate the operand before applying the unary operation
+    def evaluate(self, env, verbose=True):
+        operand_value = self.operand.evaluate(env, verbose) # recursively evaluate the operand before applying the unary operation
 
         #Boolean negation like !true -> false
         if self.operator.type == TokenType.BANG:
@@ -122,6 +125,7 @@ class Unary(Expression):
         if self.operator.type == TokenType.MINUS:
             return -operand_value
             # -(3+2) -> 5
+          
         return operand_value  
 
     def __str__(self) -> str:
@@ -134,7 +138,7 @@ class Literal(Expression):
         self.value = value
     
     #Return the stored value and ensure it is a valid type
-    def evaluate(self):
+    def evaluate(self, env, verbose=True):
         if isinstance(self.value, (int, float, str, bool)):
             return self.value
         raise TypeError(f"Invalid literal: Expected number, string, or boolean but got {type(self.value).__name__}.")
@@ -149,8 +153,47 @@ class Grouping(Expression):
         self.expression = expression
     
     #Evaluate the inner expression
-    def evaluate(self):
-        return self.expression.evaluate()
+    def evaluate(self, env, verbose=True):
+        return self.expression.evaluate(env, verbose)
 
     def __str__(self) -> str:
         return f"(group {self.expression})"
+
+#Handles variable references like `x`
+class Variable(Expression):
+    def __init__(self, name: Token):
+        self.name = name
+
+    def evaluate(self, env, verbose=True):
+        if self.name.lexeme not in env:
+            raise NameError(f"Undefined variable '{self.name.lexeme}'")
+        return env[self.name.lexeme]
+    
+    def __str__(self) -> str:
+        return f"{self.name.lexeme}"
+
+#Handles variable assignments like `x = 5`
+class Assignment(Expression):
+    def __init__(self, name: Token, value_expr: Expression):
+        self.name = name
+        self.value_expr = value_expr
+
+    def evaluate(self, env, verbose=True):
+        value = self.value_expr.evaluate(env, verbose)
+        env[self.name.lexeme] = value
+        return value
+    
+    def __str__(self) -> str:
+        return f"(assign {self.name.lexeme} = {self.value_expr})"
+
+#Handles print statements like `print x`
+class Print(Expression):
+    def __init__(self, expression: Expression):
+        self.expression = expression
+
+    def evaluate(self, env, verbose=True):
+        value = self.expression.evaluate(env, verbose)
+        return value
+    
+    def __str__(self) -> str:
+        return f"(print {self.expression})"

@@ -1,0 +1,15 @@
+x = 10
+y = 5
+_text_One = "Fanis"
+total = x + y * 2
+half = total / 3
+greeting = "Hello, " + _text_One
+isBig = total > 20
+isEqual = total == 20
+
+print greeting
+print total
+print half
+print isBig
+print isEqual
+

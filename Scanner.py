@@ -77,8 +77,14 @@ class Scanner:
     # The main function. Our "Tokenizer". This fucntion processes the entire input and splits it into tokens
     def scan_tokens(self) -> List[Token]:
 
-        #Define the keywords true, false, and, or
-        keywords = {"true": TokenType.BOOLEAN, "false": TokenType.BOOLEAN, "and": TokenType.AND, "or": TokenType.OR}
+        #Define the keywords true, false, and, or, print
+        keywords = {
+            "true": TokenType.BOOLEAN,
+            "false": TokenType.BOOLEAN,
+            "and": TokenType.AND,
+            "or": TokenType.OR,
+            "print": TokenType.PRINT
+        }
         
         #Loop through every character in the input
         while (c := self.advance()) != "": 
@@ -129,15 +135,16 @@ class Scanner:
                 self._scan_float()
             elif c == '"':  
                 self._scan_string()
-            elif c.isalpha():  #handle keywords
+            elif c.isalpha() or c == "_":  #handle keywords and identifiers
                 lexeme = c
-                while self.peek().isalnum():
+                while self.peek().isalnum() or self.peek() == "_":
                     lexeme += self.advance()
                 token_type = keywords.get(lexeme, None)
                 if token_type:
                     self.tokens.append(Token(token_type, lexeme, lexeme == "true", self._line, self._col))
                 else:
-                    raise SyntaxError(f"Unexpected token: {lexeme}")
+                    # Treat it as a user-defined identifier (e.g. variable name)
+                    self.tokens.append(Token(TokenType.IDENTIFIER, lexeme, None, self._line, self._col))
             elif c == "\n":
                 self._scan_newline()
             else:
