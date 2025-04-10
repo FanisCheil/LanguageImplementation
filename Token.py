@@ -29,6 +29,7 @@ class TokenType(Enum):
     IDENTIFIER = 22 # variable names
     PRINT = 23 # print keyword
     COMMA = 24
+    ASK = 25
     EOF = 100  # End of input
 
 class Token:

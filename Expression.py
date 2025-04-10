@@ -199,3 +199,16 @@ class Print(Expression):
             value = expr.evaluate(env, verbose)
             result += str(value)
         return result
+
+class Ask(Expression):
+    def __init__(self, prompt_expr: Expression):
+        self.prompt_expr = prompt_expr  # The expression to display as a prompt
+
+    def evaluate(self, env, verbose=True):
+        prompt = self.prompt_expr.evaluate(env, verbose)
+        if not isinstance(prompt, str):
+            raise TypeError("ask expects a string prompt")
+        return input(prompt)
+
+    def __str__(self) -> str:
+        return f"(ask {self.prompt_expr})"

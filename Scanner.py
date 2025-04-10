@@ -83,7 +83,8 @@ class Scanner:
             "false": TokenType.BOOLEAN,
             "and": TokenType.AND,
             "or": TokenType.OR,
-            "print": TokenType.PRINT
+            "print": TokenType.PRINT,
+            "ask": TokenType.ASK
         }
         
         #Loop through every character in the input

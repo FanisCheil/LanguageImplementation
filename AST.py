@@ -212,6 +212,12 @@ class AST:
         if self._match(TokenType.IDENTIFIER):
             return Variable(self._previous())
         
+        # If it is an ask expression (e.g., ask "What is your name? ")
+        if self._match(TokenType.ASK):
+            prompt_expr = self._expression()
+            return Ask(prompt_expr)
+
+        
         # if it is a (, parse the entire inner expression
         if self._match(TokenType.LEFT_PAREN):
             expression = self._expression()
