@@ -1,0 +1,51 @@
+name = ask "What's your name? "
+print "Hi ", name, "! Let's explore some loops and conditions!"
+
+greetCount = float(ask "How many times should we greet you? ")
+
+for (i = 1; i <= greetCount; i = i + 1) {
+  if (i == 1) {
+    print "First greeting for ", name
+  } elsif (i == greetCount) {
+    print "Last one! Thanks for staying, ", name
+  } else {
+    print "Another greeting number ", i
+  }
+}
+
+print "Now let's play a number guessing game!"
+
+secret = 7
+guess = 0
+
+while (guess != secret) {
+  guess = float(ask "Guess a number between 1 and 10: ")
+
+  if (guess < secret) {
+    print "Too low!"
+  } elsif (guess > secret) {
+    print "Too high!"
+  } else {
+    print "Correct! Well done, ", name
+  }
+}
+
+print "Final test  nested ifs!"
+
+num = float(ask "Enter any number: ")
+
+if (num > 0) {
+  if (num % 2 == 0) {
+    print "Positive and even!"
+  } else {
+    print "Positive and odd!"
+  }
+} elsif (num < 0) {
+  if (num % 2 == 0) {
+    print "Negative and even!"
+  } else {
+    print "Negative and odd!"
+  }
+} else {
+  print "Zero is neither positive nor negative."
+}

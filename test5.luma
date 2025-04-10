@@ -1,0 +1,33 @@
+name = ask "What is your name? "
+mood = ask "How are you feeling today? (happy/sad/angry): "
+
+if (mood == "happy") {
+  print "That's great to hear, ", name, "!"
+  
+  inner = ask "Do you want to celebrate? (yes/no): "
+  if (inner == "yes") {
+    print "Let's throw a party!"
+  } else {
+    print "Alright, just relax and enjoy your day."
+  }
+} 
+elsif (mood == "sad") {
+  print "I'm sorry you're feeling down, ", name, "."
+
+  inner = ask "Would you like a virtual hug? (yes/no): "
+  if (inner == "yes") {
+    print "*sending a warm hug to ", name, "*"
+  } else {
+    print "Okay, I'm here if you change your mind."
+  }
+} 
+else {
+  print "Hmm... ", name, ", you're feeling something else?"
+
+  inner = ask "Is it something exciting? (yes/no): "
+  if (inner == "yes") {
+    print "Awesome! Keep the good vibes going!"
+  } else {
+    print "Got it. Take care and stay strong, ", name, "."
+  }
+}

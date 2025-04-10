@@ -1,0 +1,30 @@
+score = 0
+
+q1 = ask "1) What is 5 + 3? "
+if (q1 == "8") {
+  score = score + 1
+}
+
+q2 = ask "2) What is 12 / 4? "
+if (q2 == "3") {
+  score = score + 1
+}
+
+q3 = ask "3) What is 7 * 2? "
+if (q3 == "14") {
+  score = score + 1
+}
+
+q4 = ask "4) What is 15 - 5? "
+if (q4 == "10") {
+  score = score + 1
+}
+
+q5 = ask "5) What is 3 ** 2? "
+if (q5 == "9") {
+  score = score + 1
+}
+
+print "You got ", score, " out of 5 correct!"
+
+

@@ -198,7 +198,8 @@ class Print(Expression):
         for expr in self.expressions:
             value = expr.evaluate(env, verbose)
             result += str(value)
-        return result
+        print(result)
+        return None
 
 class Ask(Expression):
     def __init__(self, prompt_expr: Expression):
@@ -208,7 +209,161 @@ class Ask(Expression):
         prompt = self.prompt_expr.evaluate(env, verbose)
         if not isinstance(prompt, str):
             raise TypeError("ask expects a string prompt")
-        return input(prompt)
+        return input(prompt).strip()
 
     def __str__(self) -> str:
         return f"(ask {self.prompt_expr})"
+
+
+class IfChain(Expression):
+    def __init__(self, conditions: list, else_branch: list = None):
+        self.conditions = conditions
+        self.else_branch = else_branch
+
+    def evaluate(self, env, verbose=True):
+        for idx, (condition, block) in enumerate(self.conditions):
+            result = condition.evaluate(env, verbose)
+
+            if not isinstance(result, bool):
+                raise TypeError("Condition must evaluate to boolean.")
+
+            if result:
+                last_value = None
+                for stmt in block:
+                    last_value = stmt.evaluate(env, verbose)
+                return last_value  #  Return the final statement's result
+
+        if self.else_branch:
+            if verbose:
+                print("[DEBUG] No condition matched. Executing else branch.")
+            last_value = None
+            for stmt in self.else_branch:
+                last_value = stmt.evaluate(env, verbose)
+            return last_value  #  Return final else result too
+
+        return None  # If nothing runs
+
+
+    def __str__(self):
+        s = ""
+        for i, (cond, block) in enumerate(self.conditions):
+            if i == 0:
+                s += f"(if {cond} {{ {'; '.join(str(stmt) for stmt in block)} }})"
+            else:
+                s += f" elsif {cond} {{ {'; '.join(str(stmt) for stmt in block)} }}"
+        if self.else_branch:
+            s += f" else {{ {'; '.join(str(stmt) for stmt in self.else_branch)} }}"
+        return s
+
+
+class If(Expression):
+    def __init__(self, condition: Expression, then_branch: List[Expression], else_branch: List[Expression] = None):
+        self.condition = condition
+        self.then_branch = then_branch
+        self.else_branch = else_branch
+
+    def evaluate(self, env, verbose=True):
+        cond_value = self.condition.evaluate(env, verbose)
+
+        if not isinstance(cond_value, bool):
+            raise TypeError("Condition in 'if' must evaluate to a Boolean.")
+
+        if cond_value:
+            result = None
+            for stmt in self.then_branch:
+                result = stmt.evaluate(env, verbose)
+            return result
+        elif self.else_branch is not None:
+            result = None
+            for stmt in self.else_branch:
+                result = stmt.evaluate(env, verbose)
+            return result
+
+        return None
+
+    def __str__(self) -> str:
+        else_part = f" else {{ {'; '.join(str(stmt) for stmt in self.else_branch)} }}" if self.else_branch else ""
+        return f"(if {self.condition} {{ {'; '.join(str(stmt) for stmt in self.then_branch)} }}{else_part})"
+    
+
+
+
+class Block(Expression):
+    def __init__(self, statements: List[Expression]):
+        self.statements = statements
+
+    def evaluate(self, env, verbose=True):
+        result = None
+        for stmt in self.statements:
+            result = stmt.evaluate(env, verbose)
+        return result
+
+    def __str__(self):
+        return "\n".join(str(stmt) for stmt in self.statements)
+
+class While(Expression):
+    def __init__(self, condition: Expression, body: List[Expression]):
+        self.condition = condition
+        self.body = body
+
+    def evaluate(self, env, verbose=True):
+        result = None  # Track result of last executed statement
+        while True:
+            cond_value = self.condition.evaluate(env, verbose)
+
+            if not isinstance(cond_value, bool):
+                raise TypeError("While condition must evaluate to boolean.")
+
+            if not cond_value:
+                break
+
+            for stmt in self.body:
+                result = stmt.evaluate(env, verbose)
+
+        return result  # ← This allows outer expression (like Block or If) to print the result
+
+    def __str__(self) -> str:
+        return f"(while {self.condition} {{ {'; '.join(str(stmt) for stmt in self.body)} }})"
+
+class ToFloat(Expression):
+    def __init__(self, expression: Expression):
+        self.expression = expression
+
+    def evaluate(self, env, verbose=True):
+        value = self.expression.evaluate(env, verbose)
+        try:
+            return float(value)
+        except ValueError:
+            raise TypeError(f"Cannot convert to float: {value}")
+
+    def __str__(self) -> str:
+        return f"(float {self.expression})"
+    
+
+class For(Expression):
+    def __init__(self, initializer, condition, increment, body):
+        self.initializer = initializer
+        self.condition = condition
+        self.increment = increment
+        self.body = body
+
+    def evaluate(self, env, verbose=True):
+        if self.initializer:
+            self.initializer.evaluate(env, verbose)
+
+        while True:
+            cond = self.condition.evaluate(env, verbose)
+            if not isinstance(cond, bool):
+                raise TypeError("For loop condition must be a boolean.")
+
+            if not cond:
+                break
+
+            for stmt in self.body:
+                stmt.evaluate(env, verbose)
+
+            if self.increment:
+                self.increment.evaluate(env, verbose)
+
+    def __str__(self):
+        return f"(for {self.initializer}; {self.condition}; {self.increment} {{ {'; '.join(str(stmt) for stmt in self.body)} }})"

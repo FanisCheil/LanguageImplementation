@@ -1,0 +1,13 @@
+mood = ask "How are you feeling today? (happy/sad/other): "
+
+if (mood == "happy") {
+  print "That's awesome! Keep smiling!!"
+} 
+else {
+  if (mood == "sad") {
+    print "Sorry to hear that. Sending you hugs!!"
+  } 
+  else {
+    print "Mood noted! Hope your day gets even better!"
+  }
+}

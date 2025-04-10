@@ -84,7 +84,12 @@ class Scanner:
             "and": TokenType.AND,
             "or": TokenType.OR,
             "print": TokenType.PRINT,
-            "ask": TokenType.ASK
+            "ask": TokenType.ASK,
+            "if": TokenType.IF,
+            "else": TokenType.ELSE,
+            "elsif": TokenType.ELSIF,
+            "while": TokenType.WHILE,
+            "for": TokenType.FOR
         }
         
         #Loop through every character in the input
@@ -108,8 +113,14 @@ class Scanner:
                 self.tokens.append(Token(TokenType.LEFT_PAREN, c, None, self._line, self._col))
             elif c == ")":  
                 self.tokens.append(Token(TokenType.RIGHT_PAREN, c, None, self._line, self._col))
+            elif c == "{":
+                self.tokens.append(Token(TokenType.LEFT_BRACE, c, None, self._line, self._col))
+            elif c == "}":
+                self.tokens.append(Token(TokenType.RIGHT_BRACE, c, None, self._line, self._col))
             elif c == ",":
                 self.tokens.append(Token(TokenType.COMMA, c, None, self._line, self._col))
+            elif c == ";":
+                self.tokens.append(Token(TokenType.SEMICOLON, c, None, self._line, self._col))
             elif c == "!":
                 if self.peek() == "=":
                     self.advance()

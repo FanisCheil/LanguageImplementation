@@ -21,6 +21,7 @@ def run(source: str, env: dict, verbose: bool = True) -> None:
         # Call scan_tokens() to break the input into tokens
         tokens = scanner.scan_tokens()
 
+        
         # Print the tokenized output to validate it is working
         if verbose:
             for token in tokens:
@@ -30,6 +31,7 @@ def run(source: str, env: dict, verbose: bool = True) -> None:
             print("\nAST Construction")
         # Pass the tokens to AST, which constructs an Abstract Syntax Tree
         ast = AST(tokens)
+       
 
         # Print the AST for debugging
         if verbose:
@@ -43,8 +45,8 @@ def run(source: str, env: dict, verbose: bool = True) -> None:
 
         # Only print final result if it's not a Print expression
         # If it's not a print statement, output the result
-        if isinstance(ast.tree, Print):
-          print(f"{result}")
+        if verbose and result is not None:
+            print(result)
                 
             
 
@@ -105,25 +107,30 @@ def run_script(env: dict) -> None:
             print("\n\nScript input cancelled.")
             return
 
-    for line in lines:
-        # Pass verbose=False when handling script mode
-        run(line, env, verbose=False)
+    # Join all lines into a single source string
+    full_script = "\n".join(lines)
+
+    # Parse and run it as one source
+    run(full_script, env, verbose=False)
 
 # Run file input from a .txt script
 def run_file(filename: str):
     env = {}
     try:
         with open(filename, 'r') as file:
-            for line in file:
-                line = line.strip()
-                if line:
-                    # Pass verbose=False when handling file input
-                    run(line, env, verbose=False)
+            source = file.read()
+            run(source, env, verbose=False)
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found.")
 
+
 if __name__ == "__main__":
     if len(sys.argv) == 2:
-        run_file(sys.argv[1])  # Handle .txt file input
+        filename = sys.argv[1]
+        if not filename.endswith(".luma"):
+            print("Error: Only .luma files are allowed.")
+            sys.exit(1)
+        run_file(filename)
+
     else:
         run_prompt()  # Handle interactive one-line prompt

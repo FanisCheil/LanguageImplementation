@@ -30,6 +30,14 @@ class TokenType(Enum):
     PRINT = 23 # print keyword
     COMMA = 24
     ASK = 25
+    IF = 26
+    LEFT_BRACE = 27
+    RIGHT_BRACE = 28
+    ELSE = 29
+    ELSIF = 30
+    WHILE = 31
+    FOR = 32
+    SEMICOLON = 33
     EOF = 100  # End of input
 
 class Token:

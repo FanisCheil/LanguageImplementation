@@ -1,0 +1,16 @@
+for (i = 1; i <= 3; i = i + 1) {
+  print "Outer loop: ", i
+
+  for (j = 1; j <= 2; j = j + 1) {
+    print "  Inner loop: ", j
+
+    if (j == 2) {
+      print "    Inner reached max"
+    }
+  }
+
+  if (i == 3) {
+    print "Outer loop done!"
+  }
+}
+

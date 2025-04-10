@@ -1,0 +1,125 @@
+print "WELCOME TO THE LUCKY NUMBER GAME!"
+print ""
+
+name1 = ask "Hello Player 1! What is your name? "
+name2 = ask "Hello Player 2! What is your name? "
+print ""
+print ""
+
+lucky1 = 42
+lucky2 = 18
+
+print "It's your turn ", name1, "! You have 5 tries."
+min = 1
+max = 100
+tries1 = 0
+guess = 0
+print ""
+
+while (tries1 < 5 and guess != lucky1) {
+  if (min != max) {
+    print "Give a number between ", min, " and ", max
+  } else {
+    print "Just type ", min
+  }
+
+  guess = float(ask "Your guess: ")
+  
+  if (guess < min or guess > max) {
+    print "Wrong input!"
+  } else {
+    tries1 = tries1 + 1
+
+    if (guess == lucky1) {
+      if (tries1 == 1) {
+        print "WOW ", name1, "! You found it in one try!"
+      } else {
+        print "Bravo ", name1, "! You found the number in ", tries1, " tries!"
+      }
+    } elsif (guess > lucky1) {
+      max = guess - 1
+      print "Too high!"
+    } else {
+      min = guess + 1
+      print "Too low!"
+    }
+
+    if (guess != lucky1) {
+      if (tries1 == 4) {
+        print "Last chance, ", name1, "!"
+      } elsif (tries1 < 4) {
+        print "Tries left: ", 5 - tries1
+      }
+    }
+  }
+
+  print ""
+}
+
+if (guess != lucky1) {
+  print "Too bad ", name1, ", the number was ", lucky1
+}
+print ""
+print ""
+
+print "Now it's your turn ", name2, "! You have 5 tries."
+min = 1
+max = 100
+tries2 = 0
+guess = 0
+print ""
+
+while (tries2 < 5 and guess != lucky2) {
+  if (min != max) {
+    print "Give a number between ", min, " and ", max
+  } else {
+    print "Just type ", min
+  }
+
+  guess = float(ask "Your guess: ")
+
+  if (guess < min or guess > max) {
+    print "Wrong input!"
+  } else {
+    tries2 = tries2 + 1
+
+    if (guess == lucky2) {
+      if (tries2 == 1) {
+        print "WOW ", name2, "! You found it in one try!"
+      } else {
+        print "Bravo ", name2, "! You found the number in ", tries2, " tries!"
+      }
+    } elsif (guess > lucky2) {
+      max = guess - 1
+      print "Too high!"
+    } else {
+      min = guess + 1
+      print "Too low!"
+    }
+
+    if (guess != lucky2) {
+      if (tries2 == 4) {
+        print "Last chance, ", name2, "!"
+      } elsif (tries2 < 4) {
+        print "Tries left: ", 5 - tries2
+      }
+    }
+  }
+
+  print ""
+}
+
+if (guess != lucky2) {
+  print "Too bad ", name2, ", the number was ", lucky2
+}
+print ""
+
+if (tries1 < tries2) {
+  print name1, " wins with ", tries1, " tries!"
+} elsif (tries2 < tries1) {
+  print name2, " wins with ", tries2, " tries!"
+} else {
+  print "It's a draw!"
+}
+
+print "THANK YOU FOR PLAYING!"

@@ -1,0 +1,32 @@
+name = ask "What's your name? "
+feeling = ask "Hi " + name + "! How are you feeling today? (happy/sad/angry): "
+
+if (feeling == "happy") {
+  print "That's wonderful to hear, ", name, "! "
+} elsif (feeling == "sad") {
+  print "Sending hugs, ", name, ". You're not alone. "
+} elsif (feeling == "angry") {
+  print "Take a deep breath, ", name, ". It'll pass. "
+} else {
+  print "Thanks for sharing, ", name, ". Let's keep going!"
+}
+
+repeat = ask "Would you like to count to a number? (yes/no): "
+if (repeat == "yes") {
+  limit = float(ask "Enter a number to count to: ")
+  number = 1
+
+  while (number <= limit) {
+    if (number == 1) {
+      print "Starting at ", number
+    } elsif (number == limit) {
+      print "Reached the end: ", number
+    } else {
+      print "Counting... ", number
+    }
+
+    number = number + 1
+  }
+} else {
+  print "Alright, ", name, "! Have a lovely day!"
+}

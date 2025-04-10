@@ -1,0 +1,16 @@
+name = ask "What's your name? "
+limit = float(ask "Hi " + name + "! Up to which number should I count? ")
+
+print "Starting count for ", name
+
+for (i = 1; i <= limit; i = i + 1) {
+  if (i == 1) {
+    print "First step!"
+  } elsif (i == limit) {
+    print "We made it to ", i, ", ", name, "!"
+  } else {
+    print "Counting: ", i
+  }
+}
+
+print "Counting finished!"

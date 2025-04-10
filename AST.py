@@ -8,7 +8,8 @@ class AST:
         self.tokens = tokens  # Stores the token list
         self._current = 0  # track the current position in the token list
         self.variables = {}  # Global variable environment
-        self.tree = self._statement()  # Parses a full statement
+        self.tree = self._program()
+  # Parses a full statement
         # The final tree structure is stored in self.tree
 
     def evaluate(self, env, verbose=True):
@@ -61,14 +62,165 @@ class AST:
     def _at_end(self):
         # if the next token is EOF return true, Otherwise false
         return self._peek().type == TokenType.EOF
+    
+    def _program(self):
+        statements = []
+        while not self._at_end():
+            stmt = self._statement()
+            if stmt is not None:
+                statements.append(stmt)
+        return Block(statements)
+
+    def _if_statement(self):
+
+        if not self._match(TokenType.LEFT_PAREN):
+            raise SyntaxError(f"Expected '(' after 'if' at line {self._peek().line}")
+
+        condition = self._expression()
+
+        if not self._match(TokenType.RIGHT_PAREN):
+            raise SyntaxError(f"Expected ')' after condition at line {self._peek().line}")
+
+        if not self._match(TokenType.LEFT_BRACE):
+            raise SyntaxError(f"Expected '{{' to start if-block at line {self._peek().line}")
+
+        then_branch = []
+        while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
+            stmt = self._statement()
+            if stmt is not None:
+                then_branch.append(stmt)
+
+        if not self._match(TokenType.RIGHT_BRACE):
+            raise SyntaxError(f"Expected '}}' to close if-block at line {self._peek().line}")
+
+        # --- Check for elsif ---
+        has_elsif = False
+        condition_pairs = [(condition, then_branch)]
+
+        while self._match(TokenType.ELSIF):
+            has_elsif = True
+            if not self._match(TokenType.LEFT_PAREN):
+                raise SyntaxError("Expected '(' after 'elsif'")
+            elif_condition = self._expression()
+            if not self._match(TokenType.RIGHT_PAREN):
+                raise SyntaxError("Expected ')' after 'elsif' condition")
+            if not self._match(TokenType.LEFT_BRACE):
+                raise SyntaxError("Expected '{' to start 'elsif' block")
+
+            elif_branch = []
+            while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
+                stmt = self._statement()
+                if stmt is not None:
+                    elif_branch.append(stmt)
+
+            if not self._match(TokenType.RIGHT_BRACE):
+                raise SyntaxError("Expected '}' to close 'elsif' block")
+
+            condition_pairs.append((elif_condition, elif_branch))
+
+        # --- Optional else block ---
+        else_branch = None
+        if self._match(TokenType.ELSE):
+            if not self._match(TokenType.LEFT_BRACE):
+                raise SyntaxError(f"Expected '{{' to start else-block at line {self._peek().line}")
+
+            else_branch = []
+            while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
+                stmt = self._statement()
+                if stmt is not None:
+                    else_branch.append(stmt)
+
+            if not self._match(TokenType.RIGHT_BRACE):
+                raise SyntaxError(f"Expected '}}' to close else-block at line {self._peek().line}")
+
+        # Return appropriate type
+        if has_elsif:
+                
+            return IfChain(condition_pairs, else_branch)
+        else:
+            return If(condition, then_branch, else_branch)
+    
+    def _while_statement(self):
+        if not self._match(TokenType.LEFT_PAREN):
+            raise SyntaxError(f"Expected '(' after 'while' at line {self._peek().line}")
+
+        condition = self._expression()
+
+        if not self._match(TokenType.RIGHT_PAREN):
+            raise SyntaxError(f"Expected ')' after condition at line {self._peek().line}")
+
+        if not self._match(TokenType.LEFT_BRACE):
+            raise SyntaxError(f"Expected '{{' to start while-block at line {self._peek().line}")
+
+        body = []
+        while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
+            stmt = self._statement()
+            if stmt is not None:
+                body.append(stmt)
+
+        if not self._match(TokenType.RIGHT_BRACE):
+            raise SyntaxError(f"Expected '}}' to close while-block at line {self._peek().line}")
+
+        return While(condition, body)
+    
+    def _for_loop(self):
+        if not self._match(TokenType.LEFT_PAREN):
+            raise SyntaxError("Expected '(' after 'for'")
+
+        initializer = None
+        if self._check(TokenType.IDENTIFIER) and self._check_next(TokenType.EQUAL):
+            initializer = self._assignment()
+        else:
+            raise SyntaxError("Expected initialization (e.g., i = 0)")
+
+        if not self._match(TokenType.SEMICOLON):
+            raise SyntaxError("Expected ';' after initializer")
+
+        condition = self._expression()
+
+        if not self._match(TokenType.SEMICOLON):
+            raise SyntaxError("Expected ';' after condition")
+
+        increment = self._assignment()
+
+        if not self._match(TokenType.RIGHT_PAREN):
+            raise SyntaxError("Expected ')' after for loop increment")
+
+        if not self._match(TokenType.LEFT_BRACE):
+            raise SyntaxError("Expected '{' to start for-loop block")
+
+        body = []
+        while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
+            stmt = self._statement()
+            if stmt:
+                body.append(stmt)
+
+        if not self._match(TokenType.RIGHT_BRACE):
+            raise SyntaxError("Expected '}' to close for-loop block")
+
+        return For(initializer, condition, increment, body)
 
     # Check and parse a full statement (print, assignment, or expression)
     def _statement(self):
+        
+        if self._match(TokenType.FOR):
+            return self._for_loop()
+
+        if self._match(TokenType.WHILE):
+            return self._while_statement()
+
+        # Skip any stray closing braces leftover from block parsing
+        if self._match(TokenType.RIGHT_BRACE):
+            return None
+
         if self._match(TokenType.PRINT):
             expressions = [self._expression()]
             while self._match(TokenType.COMMA):  # support comma-separated expressions
                 expressions.append(self._expression())
             return Print(expressions)
+        
+        if self._match(TokenType.IF):
+            return self._if_statement()
 
         if self._check(TokenType.IDENTIFIER) and self._check_next(TokenType.EQUAL):
             return self._assignment()
@@ -210,7 +362,21 @@ class AST:
         
         # if it's a variable
         if self._match(TokenType.IDENTIFIER):
-            return Variable(self._previous())
+            name_token = self._previous()
+            
+            # Check if it's a function call like float(...)
+            if self._match(TokenType.LEFT_PAREN):
+                argument = self._expression()
+                if not self._match(TokenType.RIGHT_PAREN):
+                    raise SyntaxError("Expected ')' after function argument")
+                
+                # Handle supported functions here
+                if name_token.lexeme == "float":
+                    return ToFloat(argument)
+                else:
+                    raise SyntaxError(f"Unknown function '{name_token.lexeme}'")
+
+            return Variable(name_token)
         
         # If it is an ask expression (e.g., ask "What is your name? ")
         if self._match(TokenType.ASK):
