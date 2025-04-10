@@ -1,15 +1,8 @@
-x = 10
-y = 5
-_text_One = "Fanis"
-total = x + y * 2
-half = total / 3
-greeting = "Hello, " + _text_One
-isBig = total > 20
-isEqual = total == 20
+strCheck = ((("Hello" + "World") == ("HelloWorld")) == (("A" + "B" + "C") == ("ABC")))
+mathCheck = (((10 + 4 * 2) / 2) == 3 ** 2)
+name = "Fanis"
+score = 3 * 5 + 7 % 2 - 1
+message = "Test passed: "
+print "User: ", name, " | Score: ", score, " | Strings match: ", strCheck, " | Math correct: ", mathCheck, " | ", message, strCheck and mathCheck
 
-print greeting
-print total
-print half
-print isBig
-print isEqual
 

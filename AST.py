@@ -65,8 +65,11 @@ class AST:
     # Check and parse a full statement (print, assignment, or expression)
     def _statement(self):
         if self._match(TokenType.PRINT):
-            expr = self._expression()
-            return Print(expr)
+            expressions = [self._expression()]
+            while self._match(TokenType.COMMA):  # support comma-separated expressions
+                expressions.append(self._expression())
+            return Print(expressions)
+
         if self._check(TokenType.IDENTIFIER) and self._check_next(TokenType.EQUAL):
             return self._assignment()
         return self._expression()

@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod 
 from Token import Token, TokenType
+from typing import List
+
 
 #Parent class for all expression types
 class Expression(ABC):
@@ -188,12 +190,12 @@ class Assignment(Expression):
 
 #Handles print statements like `print x`
 class Print(Expression):
-    def __init__(self, expression: Expression):
-        self.expression = expression
+    def __init__(self, expressions: List[Expression]):
+        self.expressions = expressions
 
     def evaluate(self, env, verbose=True):
-        value = self.expression.evaluate(env, verbose)
-        return value
-    
-    def __str__(self) -> str:
-        return f"(print {self.expression})"
+        result = ""
+        for expr in self.expressions:
+            value = expr.evaluate(env, verbose)
+            result += str(value)
+        return result
