@@ -1,0 +1,90 @@
+x = 2
+y = x + 3
+print y
+
+
+1. ast = AST(tokens) luma.py
+2. self.tree = self._program() AST.py
+3. _program():
+
+    First:
+    statements = []
+
+    Then it loops:
+    while not self._at_end():
+      stmt = self._statement()
+      statements.append(stmt)
+    
+    for x = 2: sees IDENTIFIER and after EQUAL 
+               so it calles _assignemnt()  -> Which returns Assignment(name='x', value=Literal(2))
+    
+    for y = x + 3: 
+        The value_expr is Binary(Variable('x'), +, Literal(3))
+        returns Assignment(name='y', value=Binary(...))
+
+    for the print y:
+        _statement() sees PRINT so it returns PRINT([Variable('y')])
+
+
+
+  Final result of _program() is:
+
+  Block([
+    Assignment(Token(x), Literal(2)),
+    Assignment(Token(y), Binary(Variable(x), +, Literal(3))),
+    Print([Variable(y)])
+])
+
+4. AST.evaluate():
+    return self.tree.evaluate(env)
+
+
+    which means:
+    return Block([...]).evaluate(env)
+
+    So it goes to Expression.py and runs:
+    Block.evaluate(...)
+
+      for stmt in self.statements:
+        result = stmt.evaluate(env, verbose)
+
+
+
+  So the first statement Assignment(Token(x), Literal(2))
+  goes to Assignment.evaluate(...) -> value = self.value_expr.evaluate(env)
+                                              # self.value_expr is Literal(2)
+
+  Then is goes to Literal.evaluate(...) in Expression,py which return 2
+
+
+  Then the 2nd stetment Assignment(Token(y), Binary(Variable(x), +, Literal(3)))
+  
+  goes in Assignment.evaluate(...) -> value = self.value_expr.evaluate(env)
+                                      #self.value_expr is Binary(Variable(x), +, Literal(3))
+
+  so it goes to Binary.evaluate in Expression.py
+
+      left = Variable(x).evaluate(env) → goes in Variable.evaluate which returns env["x"] which is euqal to 2 so left is 2
+       
+
+      right = Literal(3).evaluate(env) →  Then is goes to Literal.evaluate(...) in Expression,py which return 3
+
+      + -> returns 2 + 3 = 5
+
+
+      so now:
+
+      env["y] = 5
+
+
+  Thirds statement is Print([Variable(y)])
+  
+
+  so it goes to Print.evaluate(env):
+
+  It does:
+
+  Variable(y).evaluate(env) for the value will will print so we now we have value = env["x"]
+  
+  End finaly we have 
+  print("5")
