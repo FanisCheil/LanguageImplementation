@@ -4,43 +4,55 @@ from AST import AST
 import Scanner
 from Expression import Print
 
+#Define a function named error which takes the line number 
+#where the error happened and the error message and print it
 def error(line: int, message: str) -> None:
     print(f"\nError on line {line}: {message}\n")
 
+
+#This is the core function that takes a string of Luma code and runs it
+#it accepts:
+  #source: the user's code as a string
+  #env: the enviroment (dictionary that olds variables)
+  #verbose: if True, it prints debug info at each stage(tokenization, AST, evaluation)
 def run(source: str, env: dict, verbose: bool = True) -> None:
+
+    #This checks if the code is empty and if so a warning is printed
     if not source.strip():
         print("\nError: Empty input. Please enter a valid expression.\n")
         return
-
+   
     try:
         if verbose:
             print("\nTokenization Process")
-        # Create a Scanner object
+
+        # Create a Scanner object to tokenize the user's code
         scanner = Scanner.Scanner(source)
 
-        # Call scan_tokens() to break the input into tokens
+        # Call scan_tokens() to break the input into a list of tokens
         tokens = scanner.scan_tokens()
 
         
-        # Print the tokenized output to validate it is working
+        # if verbose is True Print the tokenized output to validate it is working
         if verbose:
             for token in tokens:
                 print(token)
 
         if verbose:
             print("\nAST Construction")
+
         # Pass the tokens to AST, which constructs an Abstract Syntax Tree
         ast = AST(tokens)
        
 
-        # Print the AST for debugging
+        
         if verbose:
-            print(ast.tree)
+            print(ast.tree) # Print the AST for debugging
 
         if verbose:
             print("\nEvaluation Result")
-        # Evaluate the AST and print the final result
-        
+
+        #This is where the program is actually executed. It evaluates the tree using the enviroment
         result = ast.evaluate(env, verbose=verbose)
 
         # Only print final result if it's not a Print expression

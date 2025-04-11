@@ -101,22 +101,22 @@ class AST:
             has_elsif = True
             if not self._match(TokenType.LEFT_PAREN):
                 raise SyntaxError("Expected '(' after 'elsif'")
-            elif_condition = self._expression()
+            elsif_condition = self._expression()
             if not self._match(TokenType.RIGHT_PAREN):
                 raise SyntaxError("Expected ')' after 'elsif' condition")
             if not self._match(TokenType.LEFT_BRACE):
                 raise SyntaxError("Expected '{' to start 'elsif' block")
 
-            elif_branch = []
+            elsif_branch = []
             while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
                 stmt = self._statement()
                 if stmt is not None:
-                    elif_branch.append(stmt)
+                    elsif_branch.append(stmt)
 
             if not self._match(TokenType.RIGHT_BRACE):
                 raise SyntaxError("Expected '}' to close 'elsif' block")
 
-            condition_pairs.append((elif_condition, elif_branch))
+            condition_pairs.append((elsif_condition, elsif_branch))
 
         # --- Optional else block ---
         else_branch = None
@@ -135,7 +135,6 @@ class AST:
 
         # Return appropriate type
         if has_elsif:
-                
             return IfChain(condition_pairs, else_branch)
         else:
             return If(condition, then_branch, else_branch)
@@ -224,6 +223,7 @@ class AST:
 
         if self._check(TokenType.IDENTIFIER) and self._check_next(TokenType.EQUAL):
             return self._assignment()
+        
         return self._expression()
     
     #---------------------------------------------------
