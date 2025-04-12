@@ -1,18 +1,18 @@
 class Environment:
     def __init__(self, enclosing=None):
         self.variables = {}
-        self.enclosing = enclosing  # Optional parent environment (for local scopes)
+        self.enclosing = enclosing  # Parent environment (used for nested scopes)
 
     def define(self, name, value):
-        self.variables[name] = value
+        self.variables[name] = value  # Always defines in current (local) scope
 
     def assign(self, name, value):
         if name in self.variables:
-            self.variables[name] = value
-        elif self.enclosing:
-            self.enclosing.assign(name, value)
+            self.variables[name] = value  # Assign to local if exists
+        elif self.enclosing and name in self.enclosing:
+            self.enclosing.assign(name, value)  # Assign to enclosing if it has it
         else:
-            raise NameError(f"Undefined variable '{name}'")
+            raise NameError(f"Undefined variable '{name}'")  # Else raise error
 
     def get(self, name):
         if name in self.variables:

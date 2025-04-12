@@ -1,0 +1,37 @@
+z = 7
+
+if (false) {
+
+
+  a = 100
+  z = 5
+  print "If branch"
+  print a
+  print z
+} elsif (false) {
+
+  if(true){
+    h = 3
+    print h
+  }
+
+  b = 200
+  print "Elsif branch"
+  print b
+  print z
+  print h
+  
+} else {
+
+ 
+  print "Else branch"
+  print c
+  z = z + c
+  print z
+  
+}
+
+print "Global z =", z
+print "Is a accessible?", a
+print "Is b accessible?", b
+print "Is c accessible?", c

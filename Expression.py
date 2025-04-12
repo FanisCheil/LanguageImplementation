@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod 
 from Token import Token, TokenType
 from typing import List
+from Environment import Environment
 
 
 
@@ -230,17 +231,19 @@ class IfChain(Expression):
                 raise TypeError("Condition must evaluate to boolean.")
 
             if result:
+                local_env = Environment(env)
                 last_value = None
                 for stmt in block:
-                    last_value = stmt.evaluate(env, verbose)
+                    last_value = stmt.evaluate(local_env, verbose)
                 return last_value  #  Return the final statement's result
 
         if self.else_branch:
             if verbose:
                 print("[DEBUG] No condition matched. Executing else branch.")
+            local_env = Environment(env)
             last_value = None
             for stmt in self.else_branch:
-                last_value = stmt.evaluate(env, verbose)
+                last_value = stmt.evaluate(local_env, verbose)
             return last_value  #  Return final else result too
 
         return None  # If nothing runs
@@ -271,14 +274,16 @@ class If(Expression):
             raise TypeError("Condition in 'if' must evaluate to a Boolean.")
 
         if cond_value:
+            local_env = Environment(env)
             result = None
             for stmt in self.then_branch:
-                result = stmt.evaluate(env, verbose)
+                result = stmt.evaluate(local_env, verbose)
             return result
         elif self.else_branch is not None:
+            local_env = Environment(env)
             result = None
             for stmt in self.else_branch:
-                result = stmt.evaluate(env, verbose)
+                result = stmt.evaluate(local_env, verbose)
             return result
 
         return None
@@ -296,8 +301,9 @@ class Block(Expression):
 
     def evaluate(self, env, verbose=True):
         result = None
+        local_env = Environment(env)  # local scope
         for stmt in self.statements:
-            result = stmt.evaluate(env, verbose)
+            result = stmt.evaluate(local_env, verbose)
         return result
 
     def __str__(self):
@@ -309,9 +315,10 @@ class While(Expression):
         self.body = body
 
     def evaluate(self, env, verbose=True):
-        result = None  # Track result of last executed statement
+        result = None
         while True:
-            cond_value = self.condition.evaluate(env, verbose)
+            local_env = Environment(env)  # New scope per iteration (like C)
+            cond_value = self.condition.evaluate(local_env, verbose)
 
             if not isinstance(cond_value, bool):
                 raise TypeError("While condition must evaluate to boolean.")
@@ -320,12 +327,14 @@ class While(Expression):
                 break
 
             for stmt in self.body:
-                result = stmt.evaluate(env, verbose)
+                result = stmt.evaluate(local_env, verbose)
 
-        return result  # ← This allows outer expression (like Block or If) to print the result
+        return result
 
     def __str__(self) -> str:
         return f"(while {self.condition} {{ {'; '.join(str(stmt) for stmt in self.body)} }})"
+
+
 
 class ToFloat(Expression):
     def __init__(self, expression: Expression):
@@ -350,22 +359,32 @@ class For(Expression):
         self.body = body
 
     def evaluate(self, env, verbose=True):
-        if self.initializer:
-            self.initializer.evaluate(env, verbose)
+        if not isinstance(self.initializer, Assignment):
+            raise TypeError("For loop initializer must be an assignment.")
+
+        loop_var_name = self.initializer.name.lexeme
+
+        loop_env = Environment(env)
+
+        # Assign the loop variable locally WITHOUT modifying global env
+        loop_env.define(loop_var_name, self.initializer.value_expr.evaluate(env, verbose))
 
         while True:
-            cond = self.condition.evaluate(env, verbose)
+            cond = self.condition.evaluate(loop_env, verbose)
             if not isinstance(cond, bool):
                 raise TypeError("For loop condition must be a boolean.")
 
             if not cond:
                 break
 
-            for stmt in self.body:
-                stmt.evaluate(env, verbose)
+            # Create a nested environment for the loop body
+            body_env = Environment(loop_env)
 
-            if self.increment:
-                self.increment.evaluate(env, verbose)
+            for stmt in self.body:
+                stmt.evaluate(body_env, verbose)
+
+            self.increment.evaluate(loop_env, verbose)
+
 
     def __str__(self):
         return f"(for {self.initializer}; {self.condition}; {self.increment} {{ {'; '.join(str(stmt) for stmt in self.body)} }})"

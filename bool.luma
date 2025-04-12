@@ -1,5 +1,0 @@
-flag = true
-print flag
-
-other = false
-print other
