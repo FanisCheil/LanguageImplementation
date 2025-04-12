@@ -1,0 +1,59 @@
+class Pet {
+  name = "Unnamed"
+  species = "Unknown"
+  age = 0
+  needsVaccine = false
+}
+
+print ""
+numPets = float(ask "How many pets do you want to register? ")
+print ""
+
+pets = []
+i = 0
+
+while (i < numPets) {
+  name = ask "Enter the name of pet # " + str(i) + ": "
+  species = ask "What species is " + name + "? (dog/cat/etc): "
+  age = float(ask "How old is " + name + "? ")
+
+  p = Pet()
+  p.name = name
+  p.species = species
+  p.age = age
+
+  if (p.age < 2) {
+    p.needsVaccine = true
+  } elsif (p.age >= 2 and p.age < 4) {
+    if (p.species == "dog") {
+      p.needsVaccine = true
+    } else {
+      p.needsVaccine = false
+    }
+  } else {
+    p.needsVaccine = false
+  }
+
+  pets = pets + [p]
+  i = i + 1
+  print ""
+}
+
+print ""
+print "----- Vaccination Report -----"
+print ""
+
+i = 0
+while (i < numPets) {
+  print "Pet #", str(i + 1), ": ", pets[i].name, " is a ", pets[i].species
+  if (pets[i].needsVaccine == true) {
+    print pets[i].name, " needs vaccination."
+  } else {
+    print pets[i].name, " is healthy."
+  }
+  print ""
+  i = i + 1
+}
+
+
+print "End of Report."

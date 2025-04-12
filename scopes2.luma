@@ -23,7 +23,7 @@ if (false) {
   
 } else {
 
- 
+  c = 300
   print "Else branch"
   print c
   z = z + c
@@ -31,7 +31,7 @@ if (false) {
   
 }
 
-print "Global z =", z
+print "z =", z
 print "Is a accessible?", a
 print "Is b accessible?", b
 print "Is c accessible?", c

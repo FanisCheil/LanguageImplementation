@@ -1,0 +1,12 @@
+class Dog {
+  name = ["Rex", "Ivar"]
+  age = 5
+  breed = "German Shepherd"
+}
+
+
+d = Dog()
+
+print "Dog's name is: ", d.name[1]
+print "Dog's age is: ", d.age
+print "Dog's breed is: ", d.breed
