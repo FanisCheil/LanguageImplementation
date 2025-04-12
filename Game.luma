@@ -1,8 +1,14 @@
 print "WELCOME TO THE LUCKY NUMBER GAME!"
 print ""
+continue = true
+
+while(continue){
+
 
 name1 = ask "Hello Player 1! What is your name? "
 name2 = ask "Hello Player 2! What is your name? "
+
+
 print ""
 print ""
 
@@ -122,4 +128,19 @@ if (tries1 < tries2) {
   print "It's a draw!"
 }
 
-print "THANK YOU FOR PLAYING!"
+
+
+playAgain = ask"Do you wanna play again?(Yes/No) "
+
+if(playAgain == "Yes"){
+  continue = true
+  print""
+  print""
+}
+else{
+  continue = false
+  print "THANK YOU FOR PLAYING!"
+
+}
+
+}

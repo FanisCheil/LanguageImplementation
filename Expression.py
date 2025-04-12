@@ -3,6 +3,7 @@ from Token import Token, TokenType
 from typing import List
 
 
+
 #Parent class for all expression types
 class Expression(ABC):
     @abstractmethod #This forces all subclasses to implement the evaluate() function
@@ -167,9 +168,7 @@ class Variable(Expression):
         self.name = name
 
     def evaluate(self, env, verbose=True):
-        if self.name.lexeme not in env:
-            raise NameError(f"Undefined variable '{self.name.lexeme}'")
-        return env[self.name.lexeme]
+        return env.get(self.name.lexeme)
     
     def __str__(self) -> str:
         return f"{self.name.lexeme}"
@@ -182,7 +181,10 @@ class Assignment(Expression):
 
     def evaluate(self, env, verbose=True):
         value = self.value_expr.evaluate(env, verbose)
-        env[self.name.lexeme] = value
+        if self.name.lexeme in env:
+            env.assign(self.name.lexeme, value)  # αν υπάρχει, ενημέρωσέ τη
+        else:
+            env.define(self.name.lexeme, value)  # αλλιώς, δημιούργησέ τη
         return value
     
     def __str__(self) -> str:
