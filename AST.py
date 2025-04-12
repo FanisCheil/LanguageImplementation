@@ -72,14 +72,18 @@ class AST:
         return Block(statements)
     
      # Check and parse a full statement (print, assignment, or expression)
+    
     def _statement(self):
+
+        if self._match(TokenType.CLASS):
+            return self._class_declaration()
 
         if self._match(TokenType.RETURN):
             return self._return_statement()
 
         if self._match(TokenType.FUN):
             return self._function_declaration()
-        
+
         if self._match(TokenType.FOR):
             return self._for_loop()
 
@@ -95,14 +99,44 @@ class AST:
             while self._match(TokenType.COMMA):  # support comma-separated expressions
                 expressions.append(self._expression())
             return Print(expressions)
-        
+
         if self._match(TokenType.IF):
             return self._if_statement()
 
-        if self._check(TokenType.IDENTIFIER) and self._check_next(TokenType.EQUAL):
-            return self._assignment()
-        
-        return self._expression()
+        # Generic assignment detection for variables and fields
+        checkpoint = self._current
+        expr = self._expression()
+        if self._match(TokenType.EQUAL):
+            value_expr = self._expression()
+            if isinstance(expr, Variable):
+                return Assignment(expr.name, value_expr)
+            if isinstance(expr, GetField):
+                return SetField(expr.object_expr, expr.field_name, value_expr)
+            raise SyntaxError("Invalid assignment target")
+        else:
+            self._current = checkpoint
+
+        return expr
+    
+
+    def _class_declaration(self):
+        if not self._match(TokenType.IDENTIFIER):
+            raise SyntaxError("Expected class name")
+        class_name = self._previous().lexeme
+
+        if not self._match(TokenType.LEFT_BRACE):
+            raise SyntaxError("Expected '{' after class name")
+
+        body = []
+        while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
+            stmt = self._statement()
+            if stmt:
+                body.append(stmt)
+
+        if not self._match(TokenType.RIGHT_BRACE):
+            raise SyntaxError("Expected '}' after class body")
+
+        return Class(class_name, body)
     
     def _return_statement(self):
         value = None
@@ -285,10 +319,27 @@ class AST:
     # This is the starting point of parsing
     # _expression() Parses the full expression
     def _assignment(self):
-        name = self._advance()
-        self._advance()  # skip '='
-        value_expr = self._expression()
-        return Assignment(name, value_expr)
+        # First parse the left-hand side, which could be a variable or a field access
+        expr = self._expression()
+
+        # If there's no '=' after it, it's not an assignment
+        if not self._match(TokenType.EQUAL):
+            return expr  # Just return the original expression (not an assignment)
+
+        # Parse the right-hand side of the assignment
+        value = self._expression()
+
+        # Handle variable assignment (x = ...)
+        if isinstance(expr, Variable):
+            return Assignment(expr.name, value)
+
+        # Handle object field assignment (p.name = ...)
+        if isinstance(expr, GetField):
+            return SetField(expr.object_expr, expr.field_name, value)
+
+        # If it's not assignable
+        raise SyntaxError("Invalid assignment target")
+
     
     def _expression(self, verbose=True):
         return self._logical_or(verbose)  # Calls _logical_or() which handles boolean or (or) operations
@@ -413,9 +464,8 @@ class AST:
             name_token = self._previous()
             expr = Variable(name_token)
 
-            # Handle chained function calls and list indexing
             while True:
-                if self._match(TokenType.LEFT_PAREN):  # function call
+                if self._match(TokenType.LEFT_PAREN):
                     arguments = []
                     if not self._check(TokenType.RIGHT_PAREN):
                         while True:
@@ -424,13 +474,32 @@ class AST:
                                 break
                     if not self._match(TokenType.RIGHT_PAREN):
                         raise SyntaxError("Expected ')' after function arguments")
+
+                    # Handle built-in float() manually
+                    if isinstance(expr, Variable) and expr.name.lexeme == "float":
+                        if len(arguments) != 1:
+                            raise SyntaxError("float() expects exactly 1 argument")
+                        return ToFloat(arguments[0])
+                    
+                    if isinstance(expr, Variable) and expr.name.lexeme == "str":
+                        if len(arguments) != 1:
+                            raise SyntaxError("str() expects exactly 1 argument")
+                        return ToString(arguments[0])
+
+
                     expr = FunctionCall(expr, arguments)
 
-                elif self._match(TokenType.LEFT_BRACKET):  # list indexing
+                elif self._match(TokenType.LEFT_BRACKET):
                     index_expr = self._expression()
                     if not self._match(TokenType.RIGHT_BRACKET):
                         raise SyntaxError("Expected ']' after index")
                     expr = IndexAccess(expr, index_expr)
+
+                elif self._match(TokenType.DOT):
+                    field = self._advance()
+                    if field.type != TokenType.IDENTIFIER:
+                        raise SyntaxError("Expected property name after '.'")
+                    expr = GetField(expr, field)
 
                 else:
                     break
@@ -463,5 +532,4 @@ class AST:
         raise SyntaxError(
             f"Unexpected token: '{self._peek().lexeme}' at line {self._peek().line}, column {self._peek().col}."
         )
-
 

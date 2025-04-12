@@ -42,6 +42,8 @@ class TokenType(Enum):
     RETURN = 35
     LEFT_BRACKET = 36
     RIGHT_BRACKET = 37
+    CLASS = 38
+    DOT = 39
     EOF = 100  # End of input
 
 class Token:

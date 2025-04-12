@@ -355,6 +355,21 @@ class ToFloat(Expression):
     def __str__(self) -> str:
         return f"(float {self.expression})"
     
+class ToString(Expression):
+    def __init__(self, expression: Expression):
+        self.expression = expression
+
+    def evaluate(self, env, verbose=True):
+        value = self.expression.evaluate(env, verbose)
+        try:
+            return str(value)
+        except Exception:
+            raise TypeError(f"Cannot convert to string: {value}")
+
+    def __str__(self):
+        return f"(str {self.expression})"
+
+    
 
 class For(Expression):
     def __init__(self, initializer, condition, increment, body):
@@ -430,15 +445,23 @@ class FunctionCall(Expression):
         self.arguments = arguments
 
     def evaluate(self, env, verbose=True):
-        func = self.callee.evaluate(env, verbose)
-        if not isinstance(func, Function):
-            raise TypeError(f"'{self.callee}' is not a callable function")
-
+        target = self.callee.evaluate(env, verbose)
         arg_values = [arg.evaluate(env, verbose) for arg in self.arguments]
-        return func.call(arg_values, env, verbose)
+
+        if isinstance(target, Function):
+            return target.call(arg_values, env, verbose)
+
+        
+        if isinstance(target, ClassDefinition):
+            if len(arg_values) > 0:
+                raise TypeError(f"Class '{target.name}' does not accept arguments (yet)")
+            return target.instantiate(env, verbose)
+
+        raise TypeError(f"'{self.callee}' is not a callable function or class")
 
     def __str__(self):
         return f"{self.callee}({', '.join(str(arg) for arg in self.arguments)})"
+
     
 
 class Return(Expression):
@@ -488,3 +511,80 @@ class IndexAccess(Expression):
 
     def __str__(self):
         return f"{self.collection_expr}[{self.index_expr}]"
+
+
+class Class(Expression):
+    def __init__(self, name: str, body: list):
+        self.name = name
+        self.body = body  # list of assignments
+
+    def evaluate(self, env, verbose=True):
+        class_def = ClassDefinition(self.name, self.body)
+        env.define(self.name, class_def)
+        return None
+
+    def __str__(self):
+        return f"<class {self.name}>"
+
+
+class ClassDefinition:
+    def __init__(self, name, body):
+        self.name = name
+        self.body = body
+
+    def instantiate(self, env, verbose=True):
+        instance = Instance()
+        for stmt in self.body:
+            if isinstance(stmt, Assignment):
+                value = stmt.value_expr.evaluate(env, verbose)
+                instance.fields[stmt.name.lexeme] = value
+        return instance
+
+
+class Instance:
+    def __init__(self):
+        self.fields = {}
+
+    def get(self, name):
+        if name in self.fields:
+            return self.fields[name]
+        raise NameError(f"Undefined field '{name}'")
+
+    def __str__(self):
+        return f"<instance {self.fields}>"
+
+
+class GetField(Expression):
+    def __init__(self, object_expr: Expression, field_name: Token):
+        self.object_expr = object_expr
+        self.field_name = field_name
+
+    def evaluate(self, env, verbose=True):
+        obj = self.object_expr.evaluate(env, verbose)
+        if isinstance(obj, Instance):
+            return obj.get(self.field_name.lexeme)
+        raise TypeError("Only instances have fields")
+
+    def __str__(self):
+        return f"{self.object_expr}.{self.field_name.lexeme}"
+    
+
+class SetField(Expression):
+    def __init__(self, object_expr: Expression, field_name: Token, value_expr: Expression):
+        self.object_expr = object_expr
+        self.field_name = field_name
+        self.value_expr = value_expr
+
+    def evaluate(self, env, verbose=True):
+        obj = self.object_expr.evaluate(env, verbose)
+        if not isinstance(obj, Instance):
+            raise TypeError("Only instances have fields")
+
+        value = self.value_expr.evaluate(env, verbose)
+        obj.fields[self.field_name.lexeme] = value
+        return value
+
+    def __str__(self):
+        return f"{self.object_expr}.{self.field_name.lexeme} = {self.value_expr}"
+
+

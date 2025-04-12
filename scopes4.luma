@@ -1,14 +1,14 @@
 counter = 10
 x = 0
-i = 100
-for (i = 0; i < counter; i = i + 1) {
+var = 100
+for (var = 0; var < counter; var = var + 1) {
   x = x + 10
   print "x inside loop =", x
-  print "i inside loop =", i
+  print "var inside loop =", var
   z = 5
 }
 
 print "x after loop =", x
-print "i outside loop =", i
+print "var outside loop =", var
 print z
  

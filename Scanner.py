@@ -91,7 +91,8 @@ class Scanner:
             "while": TokenType.WHILE,
             "for": TokenType.FOR,
             "fun": TokenType.FUN,
-            "return": TokenType.RETURN
+            "return": TokenType.RETURN,
+            "class": TokenType.CLASS
         }
         
         #Loop through every character in the input
@@ -127,6 +128,8 @@ class Scanner:
                 self.tokens.append(Token(TokenType.COMMA, c, None, self._line, self._col))
             elif c == ";":
                 self.tokens.append(Token(TokenType.SEMICOLON, c, None, self._line, self._col))
+            elif c == ".":
+                self.tokens.append(Token(TokenType.DOT, c, None, self._line, self._col))
             elif c == "!":
                 if self.peek() == "=":
                     self.advance()
