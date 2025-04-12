@@ -1,0 +1,4 @@
+names = ["Luma", "Rhea", "Orion"]
+for (i = 0; i < 3; i = i + 1) {
+  print "Name at", i, "=", names[i]
+}

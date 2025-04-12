@@ -76,6 +76,11 @@ class Binary(Expression):
             elif isinstance(left_value, (int, float)) and isinstance(right_value, (int, float)):
                 return left_value + right_value 
                 # 5 + 3 -> 8
+
+                # list concatenation
+            elif isinstance(left_value, list) and isinstance(right_value, list):
+                return left_value + right_value
+
               
             #Prevent invlalid operations like "hello" + 5 -> error message
             else:
@@ -447,3 +452,39 @@ class Return(Expression):
 class ReturnException(Exception):
     def __init__(self, value):
         self.value = value
+
+
+class ListLiteral(Expression):
+    def __init__(self, elements: List[Expression]):
+        self.elements = elements
+
+    def evaluate(self, env, verbose=True):
+        return [el.evaluate(env, verbose) for el in self.elements]
+
+    def __str__(self):
+        return "[" + ", ".join(str(el) for el in self.elements) + "]"
+
+class IndexAccess(Expression):
+    def __init__(self, collection_expr, index_expr):
+        self.collection_expr = collection_expr
+        self.index_expr = index_expr
+
+    def evaluate(self, env, verbose=True):
+        collection = self.collection_expr.evaluate(env, verbose)
+        index = self.index_expr.evaluate(env, verbose)
+
+        if not isinstance(collection, list):
+            raise TypeError("Indexing is only supported on lists.")
+
+        if not isinstance(index, (int, float)):
+            raise TypeError("List index must be a number.")
+
+        index = int(index)
+
+        if index < 0 or index >= len(collection):
+            raise IndexError("List index out of bounds.")
+
+        return collection[index]
+
+    def __str__(self):
+        return f"{self.collection_expr}[{self.index_expr}]"

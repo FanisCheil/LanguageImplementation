@@ -40,6 +40,8 @@ class TokenType(Enum):
     SEMICOLON = 33
     FUN = 34
     RETURN = 35
+    LEFT_BRACKET = 36
+    RIGHT_BRACKET = 37
     EOF = 100  # End of input
 
 class Token:
