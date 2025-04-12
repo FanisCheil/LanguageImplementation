@@ -6,7 +6,8 @@ class Dog {
 
 
 d = Dog()
-
+x = d.age
 print "Dog's name is: ", d.name[1]
 print "Dog's age is: ", d.age
 print "Dog's breed is: ", d.breed
+print x
