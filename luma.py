@@ -3,6 +3,7 @@ from Token import Token
 from AST import AST
 import Scanner
 from Expression import Print
+from Environment import Environment
 
 #Define a function named error which takes the line number 
 #where the error happened and the error message and print it
@@ -15,7 +16,7 @@ def error(line: int, message: str) -> None:
   #source: the user's code as a string
   #env: the enviroment (dictionary that olds variables)
   #verbose: if True, it prints debug info at each stage(tokenization, AST, evaluation)
-def run(source: str, env: dict, verbose: bool = True) -> None:
+def run(source: str, env: Environment, verbose: bool = True) -> None:
 
     #This checks if the code is empty and if so a warning is printed
     if not source.strip():
@@ -77,7 +78,7 @@ def run(source: str, env: dict, verbose: bool = True) -> None:
 # Run a prompt where users can enter expressions
 def run_prompt() -> None:
     print("Type expressions to evaluate, or type 'exit()' to quit. Type 'script()' to enter multi-line mode.\n")
-    env = {}  # Shared environment for variables
+    env = Environment()  # Shared environment for variables
 
     while True:
         print("\n>>> ", end="")
@@ -105,7 +106,7 @@ def run_prompt() -> None:
             break
 
 # Run script mode for multiple lines until 'end()'
-def run_script(env: dict) -> None:
+def run_script(env: Environment) -> None:
     print("\nEnter your program. Type 'end()' to finish:\n")
     lines = []
     while True:
@@ -127,7 +128,7 @@ def run_script(env: dict) -> None:
 
 # Run file input from a .txt script
 def run_file(filename: str):
-    env = {}
+    env = Environment()
     try:
         with open(filename, 'r') as file:
             source = file.read()
