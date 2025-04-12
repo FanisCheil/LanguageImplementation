@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from Token import Token, TokenType
 from typing import List
 from Environment import Environment
-
+from typing import Optional
 
 
 #Parent class for all expression types
@@ -388,3 +388,62 @@ class For(Expression):
 
     def __str__(self):
         return f"(for {self.initializer}; {self.condition}; {self.increment} {{ {'; '.join(str(stmt) for stmt in self.body)} }})"
+
+class Function(Expression):
+    def __init__(self, name: str, param_names: list[str], body: List[Expression]):
+        self.name = name
+        self.param_names = param_names
+        self.body = body
+
+    def evaluate(self, env, verbose=True):
+        env.define(self.name, self)
+        return None
+
+    def call(self, args: list, calling_env, verbose=True):
+        if len(args) != len(self.param_names):
+            raise TypeError(f"Function '{self.name}' expects {len(self.param_names)} arguments, got {len(args)}.")
+
+        local_env = Environment(calling_env)
+        for name, value in zip(self.param_names, args):
+            local_env.define(name, value)
+
+        try:
+            result = None
+            for stmt in self.body:
+                result = stmt.evaluate(local_env, verbose)
+            return result
+        except ReturnException as ret:
+            return ret.value
+
+    def __str__(self):
+        return f"<function {self.name}({', '.join(self.param_names)})>"
+
+
+class FunctionCall(Expression):
+    def __init__(self, callee: Expression, arguments: list[Expression]):
+        self.callee = callee
+        self.arguments = arguments
+
+    def evaluate(self, env, verbose=True):
+        func = self.callee.evaluate(env, verbose)
+        if not isinstance(func, Function):
+            raise TypeError(f"'{self.callee}' is not a callable function")
+
+        arg_values = [arg.evaluate(env, verbose) for arg in self.arguments]
+        return func.call(arg_values, env, verbose)
+
+    def __str__(self):
+        return f"{self.callee}({', '.join(str(arg) for arg in self.arguments)})"
+    
+
+class Return(Expression):
+    def __init__(self, value_expr):
+        self.value_expr = value_expr
+
+    def evaluate(self, env, verbose=True):
+        value = self.value_expr.evaluate(env, verbose)
+        raise ReturnException(value)
+
+class ReturnException(Exception):
+    def __init__(self, value):
+        self.value = value

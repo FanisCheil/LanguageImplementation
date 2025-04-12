@@ -1,0 +1,10 @@
+
+fun double(n) {
+  x = n * 2
+  y = 5
+  print "Double is ", x
+  print "inside ", y
+}
+
+double(10)
+print y

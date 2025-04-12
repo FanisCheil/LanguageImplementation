@@ -89,7 +89,9 @@ class Scanner:
             "else": TokenType.ELSE,
             "elsif": TokenType.ELSIF,
             "while": TokenType.WHILE,
-            "for": TokenType.FOR
+            "for": TokenType.FOR,
+            "fun": TokenType.FUN,
+            "return": TokenType.RETURN
         }
         
         #Loop through every character in the input

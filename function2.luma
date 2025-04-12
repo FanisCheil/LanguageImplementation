@@ -1,0 +1,23 @@
+result = 0
+
+fun multiply(a, b) {
+  prod = a * b
+  print "Product = ", prod
+  return prod
+}
+
+fun square(n) {
+  return multiply(n, n)
+}
+
+fun computeFormula(x, y) {
+  print "Computing x^2 + y"
+  sq = square(x)
+  total = sq + y
+  return total
+}
+
+result = computeFormula(4, 6)
+print "Final result = ", result
+
+
