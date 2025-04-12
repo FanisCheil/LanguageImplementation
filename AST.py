@@ -398,63 +398,70 @@ class AST:
         return self._primary()
 
     def _primary(self):
-        # if it is a number return it
         if self._match(TokenType.FLOAT):
             if self._check(TokenType.BANG):
                 raise SyntaxError(f"Syntax Error: Unexpected token '!' after number.")
             return Literal(self._previous().literal)
-        
-        # if it is a string return it
+
         if self._match(TokenType.STRING):  
             return Literal(self._previous().literal)
-        
-        # if it is a boolean, return it
+
         if self._match(TokenType.BOOLEAN):  
             return Literal(self._previous().literal)
-        
+
         if self._match(TokenType.IDENTIFIER):
             name_token = self._previous()
+            expr = Variable(name_token)
 
-            # Check if it's a function call
-            if self._match(TokenType.LEFT_PAREN):
-                arguments = []
-                if not self._check(TokenType.RIGHT_PAREN):  # allow zero-arg calls
-                    while True:
-                        arguments.append(self._expression())
-                        if not self._match(TokenType.COMMA):
-                            break
+            # Handle chained function calls and list indexing
+            while True:
+                if self._match(TokenType.LEFT_PAREN):  # function call
+                    arguments = []
+                    if not self._check(TokenType.RIGHT_PAREN):
+                        while True:
+                            arguments.append(self._expression())
+                            if not self._match(TokenType.COMMA):
+                                break
+                    if not self._match(TokenType.RIGHT_PAREN):
+                        raise SyntaxError("Expected ')' after function arguments")
+                    expr = FunctionCall(expr, arguments)
 
-                if not self._match(TokenType.RIGHT_PAREN):
-                    raise SyntaxError("Expected ')' after function arguments")
+                elif self._match(TokenType.LEFT_BRACKET):  # list indexing
+                    index_expr = self._expression()
+                    if not self._match(TokenType.RIGHT_BRACKET):
+                        raise SyntaxError("Expected ']' after index")
+                    expr = IndexAccess(expr, index_expr)
 
-                if name_token.lexeme == "float":
-                    if len(arguments) != 1:
-                        raise SyntaxError("float() expects exactly 1 argument")
-                    return ToFloat(arguments[0])
+                else:
+                    break
 
-                # Create a FunctionCall node
-                return FunctionCall(Variable(name_token), arguments)
+            return expr
 
-            return Variable(name_token)
-
-        
-        # If it is an ask expression (e.g., ask "What is your name? ")
         if self._match(TokenType.ASK):
             prompt_expr = self._expression()
             return Ask(prompt_expr)
 
-        
-        # if it is a (, parse the entire inner expression
         if self._match(TokenType.LEFT_PAREN):
             expression = self._expression()
-            # Ensure there is a closing parenthesis for every opening parenthesis  
             if not self._match(TokenType.RIGHT_PAREN):
                 raise SyntaxError(
                     f"Syntax Error: Missing closing parenthesis ')' at line {self._peek().line}, column {self._peek().col}."
                 )
             return Grouping(expression)
 
+        if self._match(TokenType.LEFT_BRACKET):
+            elements = []
+            if not self._check(TokenType.RIGHT_BRACKET):
+                while True:
+                    elements.append(self._expression())
+                    if not self._match(TokenType.COMMA):
+                        break
+            if not self._match(TokenType.RIGHT_BRACKET):
+                raise SyntaxError("Expected ']' after list literal")
+            return ListLiteral(elements)
+
         raise SyntaxError(
             f"Unexpected token: '{self._peek().lexeme}' at line {self._peek().line}, column {self._peek().col}."
         )
+
 

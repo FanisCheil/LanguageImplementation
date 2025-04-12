@@ -119,6 +119,10 @@ class Scanner:
                 self.tokens.append(Token(TokenType.LEFT_BRACE, c, None, self._line, self._col))
             elif c == "}":
                 self.tokens.append(Token(TokenType.RIGHT_BRACE, c, None, self._line, self._col))
+            elif c == "[":
+                self.tokens.append(Token(TokenType.LEFT_BRACKET, c, None, self._line, self._col))
+            elif c == "]":
+                self.tokens.append(Token(TokenType.RIGHT_BRACKET, c, None, self._line, self._col))
             elif c == ",":
                 self.tokens.append(Token(TokenType.COMMA, c, None, self._line, self._col))
             elif c == ";":
