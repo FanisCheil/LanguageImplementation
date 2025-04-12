@@ -73,6 +73,12 @@ class AST:
     
      # Check and parse a full statement (print, assignment, or expression)
     def _statement(self):
+
+        if self._match(TokenType.RETURN):
+            return self._return_statement()
+
+        if self._match(TokenType.FUN):
+            return self._function_declaration()
         
         if self._match(TokenType.FOR):
             return self._for_loop()
@@ -97,6 +103,50 @@ class AST:
             return self._assignment()
         
         return self._expression()
+    
+    def _return_statement(self):
+        value = None
+        if not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
+            value = self._expression()
+        return Return(value)
+
+    
+    def _function_declaration(self):
+        name_token = self._advance()
+        if name_token.type != TokenType.IDENTIFIER:
+            raise SyntaxError("Expected function name after 'fun'")
+
+        if not self._match(TokenType.LEFT_PAREN):
+            raise SyntaxError("Expected '(' after function name")
+
+        param_names = []
+        if not self._check(TokenType.RIGHT_PAREN):  # allow 0 args
+            while True:
+                param_token = self._advance()
+                if param_token.type != TokenType.IDENTIFIER:
+                    raise SyntaxError("Expected parameter name")
+                param_names.append(param_token.lexeme)
+
+                if not self._match(TokenType.COMMA):
+                    break
+
+        if not self._match(TokenType.RIGHT_PAREN):
+            raise SyntaxError("Expected ')' after parameters")
+
+        if not self._match(TokenType.LEFT_BRACE):
+            raise SyntaxError("Expected '{' before function body")
+
+        body = []
+        while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
+            stmt = self._statement()
+            if stmt:
+                body.append(stmt)
+
+        if not self._match(TokenType.RIGHT_BRACE):
+            raise SyntaxError("Expected '}' after function body")
+
+        return Function(name_token.lexeme, param_names, body)
+
 
     def _if_statement(self):
 
@@ -362,23 +412,31 @@ class AST:
         if self._match(TokenType.BOOLEAN):  
             return Literal(self._previous().literal)
         
-        # if it's a variable
         if self._match(TokenType.IDENTIFIER):
             name_token = self._previous()
-            
-            # Check if it's a function call like float(...)
+
+            # Check if it's a function call
             if self._match(TokenType.LEFT_PAREN):
-                argument = self._expression()
+                arguments = []
+                if not self._check(TokenType.RIGHT_PAREN):  # allow zero-arg calls
+                    while True:
+                        arguments.append(self._expression())
+                        if not self._match(TokenType.COMMA):
+                            break
+
                 if not self._match(TokenType.RIGHT_PAREN):
-                    raise SyntaxError("Expected ')' after function argument")
-                
-                # Handle supported functions here
+                    raise SyntaxError("Expected ')' after function arguments")
+
                 if name_token.lexeme == "float":
-                    return ToFloat(argument)
-                else:
-                    raise SyntaxError(f"Unknown function '{name_token.lexeme}'")
+                    if len(arguments) != 1:
+                        raise SyntaxError("float() expects exactly 1 argument")
+                    return ToFloat(arguments[0])
+
+                # Create a FunctionCall node
+                return FunctionCall(Variable(name_token), arguments)
 
             return Variable(name_token)
+
         
         # If it is an ask expression (e.g., ask "What is your name? ")
         if self._match(TokenType.ASK):

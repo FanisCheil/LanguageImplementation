@@ -38,6 +38,8 @@ class TokenType(Enum):
     WHILE = 31
     FOR = 32
     SEMICOLON = 33
+    FUN = 34
+    RETURN = 35
     EOF = 100  # End of input
 
 class Token:
