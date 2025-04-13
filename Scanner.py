@@ -99,6 +99,10 @@ class Scanner:
         while (c := self.advance()) != "": 
             if c.isspace():  #Skip spaces
                 continue
+            elif c == "#":
+                while self.peek() not in ("\n", ""):
+                    self.advance()
+                continue
             elif c == "+":  #Detect and store + as a PLUS token
                 self.tokens.append(Token(TokenType.PLUS, c, None, self._line, self._col))
             elif c == "-":  #Detect and store - as a MINUS token

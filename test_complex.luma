@@ -1,4 +1,4 @@
-name = ask "What's your name? "
+name = ask "What's your name? " 
 print "Hi ", name, "! Let's explore some loops and conditions!"
 
 greetCount = float(ask "How many times should we greet you? ")
@@ -8,7 +8,7 @@ for (i = 1; i <= greetCount; i = i + 1) {
     print "First greeting for ", name
   } elsif (i == greetCount) {
     print "Last one! Thanks for staying, ", name
-  } else {
+  } else { 
     print "Another greeting number ", i
   }
 }
