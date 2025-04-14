@@ -311,10 +311,15 @@ class Block(Expression):
 
     def evaluate(self, env, verbose=True):
         result = None
-        local_env = Environment(env)  # Create a new local scope (C-style scoping)
+        local_env = Environment(env)  # Create a new local scope for the block
+
         for stmt in self.statements:
-            result = stmt.evaluate(local_env, verbose)  # Evaluate each statement in the block
-        return result  # Return the result of the last evaluated statement
+            try:
+                result = stmt.evaluate(local_env, verbose)
+            except ReturnException as ret:
+                return ret.value  # Return immediately on return
+
+        return result  # Return result of last statement if no return
 
     def __str__(self):
         return "\n".join(str(stmt) for stmt in self.statements)
@@ -500,8 +505,11 @@ class Return(Expression):
         self.value_expr = value_expr  # The expression to return
 
     def evaluate(self, env, verbose=True):
-        value = self.value_expr.evaluate(env, verbose)  # Evaluate the value to return
-        raise ReturnException(value)  # Throw an exception to exit the function and carry the value
+        if self.value_expr is None:
+            raise ReturnException(None)
+        value = self.value_expr.evaluate(env, verbose)
+        raise ReturnException(value)
+
 
 
 #This custom exception is used to break out of a function early when a return is hit

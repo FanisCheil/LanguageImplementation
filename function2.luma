@@ -19,5 +19,5 @@ fun computeFormula(x, y) {
 
 result = computeFormula(4, 6)
 print "Final result = ", result
-
+print total
 

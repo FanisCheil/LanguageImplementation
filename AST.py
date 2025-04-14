@@ -125,8 +125,15 @@ class AST:
             raise SyntaxError("Invalid assignment target")  # Anything else is invalid
         else:
             self._current = checkpoint  # If no '=', restore the pointer to before the expr
+            expr = self._expression()   # Re-parse the expression cleanly
 
-        return expr  # Return the expression if it wasn't an assignment
+            #  Allow bare function calls like `double(10)` as valid top-level statements
+            if isinstance(expr, FunctionCall):
+                return expr
+
+            #  Disallow other bare expressions like `5 + 3` or `"hello"` that aren't used
+            return None  # These don't produce side effects and should be ignored
+
 
     
     def _class_declaration(self):
