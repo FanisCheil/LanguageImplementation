@@ -127,12 +127,10 @@ class AST:
             self._current = checkpoint  # If no '=', restore the pointer to before the expr
             expr = self._expression()   # Re-parse the expression cleanly
 
-            #  Allow bare function calls like `double(10)` as valid top-level statements
-            if isinstance(expr, FunctionCall):
-                return expr
+            
 
             #  Disallow other bare expressions like `5 + 3` or `"hello"` that aren't used
-            return None  # These don't produce side effects and should be ignored
+            return expr  # These don't produce side effects and should be ignored
 
 
     

@@ -55,8 +55,10 @@ def run(source: str, env: Environment, verbose: bool = True) -> None:
 
         # Only print final result if it's not a Print expression
         # If it's not a print statement, output the result
-        if verbose and result is not None:
-            print(result)
+        if verbose and result is not None and not isinstance(ast.tree, Print):
+            if not isinstance(result, type(None)):
+                print(result)
+
 
     # Handle different error types dynamically
     except SyntaxError as e:
