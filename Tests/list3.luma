@@ -5,4 +5,4 @@ for (i = 0; i < 4; i = i + 1) {
   
 }
 avg = total / 4
-print "Average =", avg
+print "Average = ", avg

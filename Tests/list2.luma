@@ -8,7 +8,7 @@ for (i = 0; i < 5; i = i + 1) {
   doubled = doubled + [value * 2]
 }
 
-print "Original list:", numbers
-print "Doubled list:", doubled
-print "Sum of numbers:", sum
+print "Original list: ", numbers
+print "Doubled list: ", doubled
+print "Sum of numbers: ", sum
 

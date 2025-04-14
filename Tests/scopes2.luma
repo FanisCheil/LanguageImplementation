@@ -35,3 +35,5 @@ print "z =", z
 print "Is a accessible?", a
 print "Is b accessible?", b
 print "Is c accessible?", c
+
+#Change the code conditions in the statements from false to true to check different cases

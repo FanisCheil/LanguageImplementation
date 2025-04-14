@@ -1,4 +1,4 @@
 x = [1, 2, 3]
 y = [x[0], x[1] + 10, 42]
-print "List y =", y
+print "List y = ", y
 
