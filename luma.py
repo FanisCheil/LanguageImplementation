@@ -5,20 +5,20 @@ import Scanner
 from Expression import Print
 from Environment import Environment
 
-#Define a function named error which takes the line number 
-#where the error happened and the error message and print it
+# Define a function named error which takes the line number 
+# where the error happened and the error message and prints it
 def error(line: int, message: str) -> None:
     print(f"\nError on line {line}: {message}\n")
 
 
-#This is the core function that takes a string of Luma code and runs it
-#it accepts:
-  #source: the user's code as a string
-  #env: the enviroment (dictionary that olds variables)
-  #verbose: if True, it prints debug info at each stage(tokenization, AST, evaluation)
+# This is the core function that takes a string of Luma code and runs it
+# it accepts:
+  # source: the user's code as a string
+  # env: the enviroment (dictionary that holds variables)
+  # verbose: if True, it prints debug info at each stage (tokenization, AST, evaluation)
 def run(source: str, env: Environment, verbose: bool = True) -> None:
 
-    #This checks if the code is empty and if so a warning is printed
+    # This checks if the code is empty and if so a warning is printed
     if not source.strip():
         print("\nError: Empty input. Please enter a valid expression.\n")
         return
@@ -33,8 +33,7 @@ def run(source: str, env: Environment, verbose: bool = True) -> None:
         # Call scan_tokens() to break the input into a list of tokens
         tokens = scanner.scan_tokens()
 
-        
-        # if verbose is True Print the tokenized output to validate it is working
+        # If verbose is True, print the tokenized output to validate it's working
         if verbose:
             for token in tokens:
                 print(token)
@@ -44,36 +43,32 @@ def run(source: str, env: Environment, verbose: bool = True) -> None:
 
         # Pass the tokens to AST, which constructs an Abstract Syntax Tree
         ast = AST(tokens)
-       
 
-        
         if verbose:
-            print(ast.tree) # Print the AST for debugging
+            print(ast.tree)  # Print the AST for debugging
 
         if verbose:
             print("\nEvaluation Result")
 
-        #This is where the program is actually executed. It evaluates the tree using the enviroment
+        # This is where the program is actually executed. It evaluates the tree using the environment
         result = ast.evaluate(env, verbose=verbose)
 
         # Only print final result if it's not a Print expression
         # If it's not a print statement, output the result
         if verbose and result is not None:
             print(result)
-                
-            
 
     # Handle different error types dynamically
     except SyntaxError as e:
-        error(scanner._line, f"Syntax Error: {str(e)}")  
+        error(scanner._line, f"Syntax Error: {str(e)}")  # Handle syntax issues (e.g., missing semicolon)
     except TypeError as e:
-        error(scanner._line, f"Type Error: {str(e)}")
+        error(scanner._line, f"Type Error: {str(e)}")  # Handle wrong type operations (e.g., "a" - 1)
     except ZeroDivisionError as e:
-        error(scanner._line, f"Math Error: {str(e)}")
+        error(scanner._line, f"Math Error: {str(e)}")  # Handle division by 0
     except OverflowError as e:
-        error(scanner._line, f"Overflow Error: {str(e)}")
+        error(scanner._line, f"Overflow Error: {str(e)}")  # Handle very large exponentiation
     except Exception as e:
-        error(scanner._line, f"Unexpected Error: {str(e)}")
+        error(scanner._line, f"Unexpected Error: {str(e)}")  # Catch any other unexpected error
 
 # Run a prompt where users can enter expressions
 def run_prompt() -> None:
@@ -126,24 +121,24 @@ def run_script(env: Environment) -> None:
     # Parse and run it as one source
     run(full_script, env, verbose=False)
 
-# Run file input from a .txt script
+# Run file input from a .txt or .luma script
 def run_file(filename: str):
     env = Environment()
     try:
         with open(filename, 'r') as file:
             source = file.read()
-            run(source, env, verbose=False)
+            run(source, env, verbose=False)  # Run the entire file at once
     except FileNotFoundError:
-        print(f"Error: File '{filename}' not found.")
+        print(f"Error: File '{filename}' not found.")  # Handle if the file doesn't exist
 
 
 if __name__ == "__main__":
+    # Handle script execution with filename as argument
     if len(sys.argv) == 2:
         filename = sys.argv[1]
         if not filename.endswith(".luma"):
-            print("Error: Only .luma files are allowed.")
+            print("Error: Only .luma files are allowed.")  # Restrict to valid Luma source files
             sys.exit(1)
         run_file(filename)
-
     else:
         run_prompt()  # Handle interactive one-line prompt

@@ -135,48 +135,72 @@ class Scanner:
             elif c == ".":
                 self.tokens.append(Token(TokenType.DOT, c, None, self._line, self._col))
             elif c == "!":
+                # Handle '!=' (not equal) operator if followed by '='
                 if self.peek() == "=":
-                    self.advance()
+                    self.advance()  # Consume '='
                     self.tokens.append(Token(TokenType.BANG_EQUAL, "!=", None, self._line, self._col))
                 else:
+                    # Just '!' (logical NOT)
                     self.tokens.append(Token(TokenType.BANG, c, None, self._line, self._col))
+
             elif c == "=":
+                # Handle '==' (equality) operator if followed by '='
                 if self.peek() == "=":
-                    self.advance()
+                    self.advance()  # Consume '='
                     self.tokens.append(Token(TokenType.EQUAL_EQUAL, "==", None, self._line, self._col))
                 else:
+                    # Just '=' (assignment)
                     self.tokens.append(Token(TokenType.EQUAL, c, None, self._line, self._col))
+
             elif c == "<":
+                # Handle '<=' if followed by '='
                 if self.peek() == "=":
-                    self.advance()
+                    self.advance()  # Consume '='
                     self.tokens.append(Token(TokenType.LESS_EQUAL, "<=", None, self._line, self._col))
                 else:
+                    # Just '<' (less than)
                     self.tokens.append(Token(TokenType.LESS, c, None, self._line, self._col))
+
             elif c == ">":
+                # Handle '>=' if followed by '='
                 if self.peek() == "=":
-                    self.advance()
+                    self.advance()  # Consume '='
                     self.tokens.append(Token(TokenType.GREATER_EQUAL, ">=", None, self._line, self._col))
                 else:
+                    # Just '>' (greater than)
                     self.tokens.append(Token(TokenType.GREATER, c, None, self._line, self._col))
-            elif c.isdigit():  
+
+            elif c.isdigit():
+                # Start of a numeric value (float or int)
                 self._scan_float()
-            elif c == '"':  
+
+            elif c == '"':
+                # Start of a string literal
                 self._scan_string()
-            elif c.isalpha() or c == "_":  #handle keywords and identifiers
-                lexeme = c
+
+            elif c.isalpha() or c == "_":  # handle keywords and identifiers
+                lexeme = c  # Start building the identifier or keyword
                 while self.peek().isalnum() or self.peek() == "_":
-                    lexeme += self.advance()
+                    lexeme += self.advance()  # Continue forming the full identifier
+
+                # Check if it's a reserved keyword (like 'if', 'print', etc.)
                 token_type = keywords.get(lexeme, None)
                 if token_type:
+                    # Special case: only 'true' is stored as literal True; all others just tagged
                     self.tokens.append(Token(token_type, lexeme, lexeme == "true", self._line, self._col))
                 else:
                     # Treat it as a user-defined identifier (e.g. variable name)
                     self.tokens.append(Token(TokenType.IDENTIFIER, lexeme, None, self._line, self._col))
+
             elif c == "\n":
+                # Handle newline characters
                 self._scan_newline()
+
             else:
+                # Catch any characters that don't match known patterns
                 raise SyntaxError(f"Unexpected token: '{c}' at line {self._line}, column {self._col}")
-        
-        #Mark the end of the input and return all tokens
+
+        # Mark the end of input with an EOF token
         self.tokens.append(Token(TokenType.EOF, "", None, self._line, self._col))
         return self.tokens
+
