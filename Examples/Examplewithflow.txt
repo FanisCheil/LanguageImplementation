@@ -16,7 +16,7 @@ print y
       statements.append(stmt)
     
     for x = 2: sees IDENTIFIER and after EQUAL 
-               so it calles _assignemnt()  -> Which returns Assignment(name='x', value=Literal(2))
+               so it calles Assignment()  -> Which returns Assignment(name='x', value=Literal(2))
     
     for y = x + 3: 
         The value_expr is Binary(Variable('x'), +, Literal(3))
@@ -57,7 +57,7 @@ print y
   Then is goes to Literal.evaluate(...) in Expression,py which return 2
 
 
-  Then the 2nd stetment Assignment(Token(y), Binary(Variable(x), +, Literal(3)))
+  Then the 2nd statement Assignment(Token(y), Binary(Variable(x), +, Literal(3)))
   
   goes in Assignment.evaluate(...) -> value = self.value_expr.evaluate(env)
                                       #self.value_expr is Binary(Variable(x), +, Literal(3))
@@ -67,7 +67,7 @@ print y
       left = Variable(x).evaluate(env) → goes in Variable.evaluate which returns env["x"] which is euqal to 2 so left is 2
        
 
-      right = Literal(3).evaluate(env) →  Then is goes to Literal.evaluate(...) in Expression,py which return 3
+      right = Literal(3).evaluate(env) →  Then is goes to Literal.evaluate(...) in Expression.py which return 3
 
       + -> returns 2 + 3 = 5
 
@@ -84,7 +84,7 @@ print y
 
   It does:
 
-  Variable(y).evaluate(env) for the value will will print so we now we have value = env["x"]
+  Variable(y).evaluate(env) for the value will will print so we now we have value = env["y"]
   
   End finaly we have 
   print("5")

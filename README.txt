@@ -1,7 +1,7 @@
 LUMA Language - Interpreter Project
 -----------------------------------
 
-Author: Fanis  
+Student ID: 100675725 
 Course: Language Design and Implementation (6CC509)  
 Year: 2024–2025  
 

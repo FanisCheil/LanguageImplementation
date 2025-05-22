@@ -173,7 +173,7 @@ class Variable(Expression):
 # Handles variable assignments like `x = 5`
 class Assignment(Expression):
     def __init__(self, name: Token, value_expr: Expression):
-        self.name = name  # The variable name
+        self.name = name  # The variablocke name
         self.value_expr = value_expr  # The expression whose result will be assigned
 
     def evaluate(self, env, verbose=True):
