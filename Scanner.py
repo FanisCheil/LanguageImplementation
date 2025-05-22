@@ -83,15 +83,20 @@ class Scanner:
             "false": TokenType.BOOLEAN,
             "and": TokenType.AND,
             "or": TokenType.OR,
+
             "print": TokenType.PRINT,
             "ask": TokenType.ASK,
+
             "if": TokenType.IF,
             "else": TokenType.ELSE,
             "elsif": TokenType.ELSIF,
+
             "while": TokenType.WHILE,
             "for": TokenType.FOR,
+
             "fun": TokenType.FUN,
             "return": TokenType.RETURN,
+            
             "class": TokenType.CLASS
         }
         
