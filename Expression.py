@@ -102,7 +102,9 @@ class Binary(Expression):
     def __str__(self) -> str:
         return f"({self.operator.lexeme} {self.left} {self.right})"
 
-
+# Represents negation and logical NOT operations
+#x = -5
+#  y = !true
 class Unary(Expression):
     def __init__(self, operator: Token, operand: Expression) -> None:
         self.operator = operator
@@ -130,6 +132,8 @@ class Unary(Expression):
     def __str__(self) -> str:
         return f"({self.operator.lexeme} {self.operand})"
 
+#Represents fixed values: numbers, strings, booleans.
+#x = 5
 class Literal(Expression):
 
     #Store consatnt values
@@ -145,6 +149,7 @@ class Literal(Expression):
     def __str__(self) -> str:
         return f"{self.value}"
 
+#Used to control the precedence of expressions.
 class Grouping(Expression):
 
     #Store an inner expression like (5 +3) * 2
@@ -304,7 +309,6 @@ class If(Expression):
 
 
 # Represents a block of statements enclosed in braces { }
-# Used for scopes in if, while, functions, etc.
 class Block(Expression):
     def __init__(self, statements: List[Expression]):
         self.statements = statements  # List of expressions/statements in the block

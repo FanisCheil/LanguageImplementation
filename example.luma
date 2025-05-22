@@ -1,0 +1,9 @@
+x = 5
+y = ask "Enter a number: "
+
+if(float(y) > x){
+  print "Greater"
+
+}else{
+  print "lower"
+}

@@ -15,7 +15,7 @@ print y
       stmt = self._statement()
       statements.append(stmt)
     
-    for x = 2: sees IDENTIFIER and after EQUAL 
+    for x = 2: sees EQUAL 
                so it calles Assignment()  -> Which returns Assignment(name='x', value=Literal(2))
     
     for y = x + 3: 

@@ -1,0 +1,192 @@
+
+Luma Expression Types: In-Depth Explanation
+===========================================
+
+This document explains all core expression types in the Luma programming language.
+Each expression class is part of the abstract syntax tree (AST) and implements an evaluate() method.
+The interpreter executes code by walking this tree and evaluating expressions step by step.
+
+1. Literal
+----------
+- Represents fixed values: numbers, strings, booleans.
+- Example:
+    x = 5
+- AST Representation:
+    Assignment(Token(x), Literal(5))
+- Evaluation:
+    Returns the raw value (5) when evaluated.
+
+2. Binary
+---------
+- Represents operations between two values: arithmetic, logical, comparison.
+- Example:
+    y = x + 3
+    z = x > y
+- AST Representation:
+    Assignment(Token(y), Binary(Variable(x), +, Literal(3)))
+    Assignment(Token(z), Binary(Variable(x), >, Variable(y)))
+- Evaluation:
+    - Recursively evaluates left and right.
+    - Applies operator (+, >, etc.) depending on token type.
+    - Supports: +, -, *, /, %, **, ==, !=, <, <=, >, >=, and, or.
+
+3. Assignment
+-------------
+- Assigns the result of an expression to a variable.
+- Example:
+    a = 10 * 2
+- AST Representation:
+    Assignment(Token(a), Binary(Literal(10), *, Literal(2)))
+- Evaluation:
+    - Evaluates the expression.
+    - Stores the result in the environment.
+    - Updates variable if already defined.
+
+4. Variable
+-----------
+- Represents access to a previously assigned variable.
+- Example:
+    b = a + 1
+- AST Representation:
+    Binary(Variable(a), +, Literal(1))
+- Evaluation:
+    - Fetches the value of the variable from the environment.
+    - Raises NameError if variable is undefined.
+
+5. Print
+--------
+- Used to display the value of one or more expressions.
+- Example:
+    print x, y + 1
+- AST Representation:
+    Print([Variable(x), Binary(Variable(y), +, Literal(1))])
+- Evaluation:
+    - Evaluates all expressions in the list.
+    - Converts results to strings and prints them.
+    - Returns None.
+
+6. Grouping
+-----------
+- Used to control the precedence of expressions.
+- Example:
+    x = (2 + 3) * 4
+- AST Representation:
+    Binary(Grouping(Binary(Literal(2), +, Literal(3))), *, Literal(4))
+- Evaluation:
+    - Evaluates the inner expression first.
+
+7. Unary
+--------
+- Represents negation and logical NOT operations.
+- Example:
+    x = -5
+    y = !true
+- AST Representation:
+    Assignment(Token(x), Unary(MINUS, Literal(5)))
+    Assignment(Token(y), Unary(BANG, Literal(true)))
+- Evaluation:
+    - Applies negation (-) or NOT (!) to the operand.
+    - Operand is recursively evaluated first.
+
+8. If
+-----
+- Represents a conditional control flow structure (if-else).
+- Example:
+    if (x > 5) { print "big" } else { print "small" }
+- AST Representation:
+    If(condition=Binary(...), then_branch=[...], else_branch=[...])
+- Evaluation:
+    - Condition is evaluated.
+    - Executes then_branch if true, else_branch otherwise.
+    - Branches are evaluated in a local environment.
+
+9. IfChain
+----------
+- Represents if + multiple elsif branches + optional else.
+- Example:
+    if (x > 10) { ... } elsif (x > 5) { ... } else { ... }
+- Evaluation:
+    - Iterates through conditions in order.
+    - Executes first true branch.
+    - If none match, runs else block if present.
+
+10. Ask
+--------
+- Prompts the user for input.
+- Example:
+    name = ask "Enter your name: "
+- Evaluation:
+    - Evaluates the prompt (must be string).
+    - Calls input() to get user input.
+    - Returns the input string.
+
+11. Block
+---------
+- Represents a sequence of statements within a scope.
+- Used in if, while, for, function bodies, classes.
+- Evaluation:
+    - Creates a new Environment (scope).
+    - Evaluates each statement in order.
+
+12. While
+---------
+- Represents a while-loop.
+- Example:
+    while (x < 5) { x = x + 1 }
+- Evaluation:
+    - Repeatedly checks condition.
+    - Runs block while condition is true.
+
+13. For
+-------
+- Represents a for-loop with initializer, condition, increment.
+- Example:
+    for (i = 0; i < 10; i = i + 1) { print i }
+- Evaluation:
+    - Executes initializer.
+    - Runs loop body while condition is true.
+    - After each iteration, runs increment.
+
+14. Function & FunctionCall
+---------------------------
+- Functions can be declared and called.
+- Example:
+    fun greet(name) { print "Hello, ", name }
+    greet("Fanis")
+- Evaluation:
+    - Declares function into environment.
+    - Calls function with local environment and arguments.
+
+15. Return & ReturnException
+----------------------------
+- Used to exit from functions with a value.
+- Example:
+    return x + 1
+- Evaluation:
+    - Throws ReturnException carrying the value.
+
+16. ListLiteral
+---------------
+- Represents a list of expressions.
+- Example:
+    x = [1, 2, 3]
+- Evaluation:
+    - Evaluates each element into a list.
+
+17. IndexAccess
+---------------
+- Accesses a value from a list.
+- Example:
+    x = arr[1]
+- Evaluation:
+    - Evaluates the list and index.
+    - Returns the value at the given index.
+
+18. Class, Instance, GetField, SetField
+---------------------------------------
+- Represents object-oriented programming.
+- `class` declares a class.
+- Instantiation creates an instance.
+- GetField reads a field (e.g., d.age).
+- SetField assigns a field (e.g., d.age = 5).
+- Evaluation uses the Instance object and its dictionary of fields.
