@@ -39,6 +39,7 @@ Language Features
 ✅ Control Flow:
    - if / elsif / else
    - while loops
+   - for loops
 ✅ Functions:
    - Defined with 'fun'
    - Support for parameters

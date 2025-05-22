@@ -20,7 +20,7 @@ print y
     
     for y = x + 3: 
         The value_expr is Binary(Variable('x'), +, Literal(3))
-        returns Assignment(name='y', value=Binary(...))
+        returns Assignment(name='y', value=Binary(Variable('x'), +, Literal(3)))
 
     for the print y:
         _statement() sees PRINT so it returns PRINT([Variable('y')])
@@ -40,7 +40,7 @@ print y
 
 
     which means:
-    return Block([...]).evaluate(env)
+    ([.return Block..]).evaluate(env)
 
     So it goes to Expression.py and runs:
     Block.evaluate(...)
