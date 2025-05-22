@@ -1,0 +1,158 @@
+
+LUMA SCRIPT
+===========
+class Person {
+  name = "Fanis"
+  age = 25
+}
+
+fun greet(name) {
+  print "Hello ", name
+}
+
+x = 1
+
+if (x < 5) {
+  print "x is small"
+} else {
+  print "x is big"
+}
+
+while (x < 4) {
+  x = x + 1
+  print x
+}
+
+greet("Fanis")
+
+
+AST CONSTRUCTION WALKTHROUGH
+============================
+
+2. self.tree = self._program() in AST.py
+
+3. _program():
+
+    Initializes an empty list:
+    statements = []
+
+    Begins looping over the token stream:
+    while not self._at_end():
+        stmt = self._statement()
+        statements.append(stmt)
+
+--------------------------------------------------
+Parsing: class Person { name = "Fanis" age = 25 }
+--------------------------------------------------
+
+- _match(TokenType.CLASS) returns True → calls _class_declaration()
+- Matches the class name: Token(IDENTIFIER, 'Person')
+- Matches the opening brace '{'
+
+Inside class body parsing loop:
+- Matches name = "Fanis":
+    - Parses left-hand side: Variable('name')
+    - Matches '=', parses right-hand side: Literal("Fanis")
+    - Constructs Assignment(Token(name), Literal("Fanis"))
+
+- Matches age = 25:
+    - Parses left-hand side: Variable('age')
+    - Matches '=', parses right-hand side: Literal(25)
+    - Constructs Assignment(Token(age), Literal(25))
+
+- Matches closing brace '}'
+→ Returns Class("Person", body=[Assignment(Token(name), Literal("Fanis")), Assignment(Token(age), Literal(25))])
+
+--------------------------------------------------
+Parsing: fun greet(name) { print "Hello ", name }
+--------------------------------------------------
+
+- _match(TokenType.FUN) returns True → calls _function_declaration()
+- Matches function name: Token(IDENTIFIER, 'greet')
+- Matches '(' and parses param: 'name'
+- Matches ')'
+- Matches '{'
+
+Inside function body:
+- Matches 'print "Hello ", name':
+    - Parses 'print' keyword
+    - Parses first expression: Literal("Hello")
+    - Matches ',' and parses second expression: Variable(name)
+    - Constructs Print([Literal("Hello"), Variable(name)])
+
+- Matches closing '}'
+→ Returns Function(name='greet', params=['name'], body=[Print([Literal("Hello"), Variable(name)])])
+
+--------------------------------------------------
+Parsing: x = 1
+--------------------------------------------------
+
+- Parses Variable('x')
+- Matches '='
+- Parses Literal(1)
+→ Returns Assignment(Token(x), Literal(1))
+
+--------------------------------------------------
+Parsing: if (x < 5) { print "x is small" } else { print "x is big" }
+--------------------------------------------------
+
+- _match(TokenType.IF) returns True → calls _if_statement()
+- Matches '(', parses Binary(Variable(x), <, Literal(5)), matches ')'
+- Matches '{'
+
+Then-block:
+- Parses Print([Literal("x is small")])
+
+Matches closing '}'
+Matches 'else' and then '{'
+
+Else-block:
+- Parses Print([Literal("x is big")])
+
+Matches closing '}'
+→ Returns If(condition=Binary(Variable(x), <, Literal(5)), then=[Print([Literal("x is small")])], else=[Print([Literal("x is big")])] )
+
+--------------------------------------------------
+Parsing: while (x < 4) { x = x + 1 print x }
+--------------------------------------------------
+
+- _match(TokenType.WHILE) returns True → calls _while_statement()
+- Matches '(', parses Binary(Variable(x), <, Literal(4)), matches ')'
+- Matches '{'
+
+Inside while block:
+- Parses Assignment(x = x + 1):
+    - Variable(x)
+    - '='
+    - Binary(Variable(x), +, Literal(1))
+→ Assignment(Token(x), Binary(Variable(x), +, Literal(1)))
+
+- Parses Print([Variable(x)])
+
+Matches closing '}'
+→ Returns While(condition=Binary(Variable(x), <, Literal(4)), body=[Assignment(Token(x), Binary(Variable(x), +, Literal(1))), Print([Variable(x)])])
+
+--------------------------------------------------
+Parsing: greet("Fanis")
+--------------------------------------------------
+
+- Parses Variable('greet')
+- Matches '('
+- Parses Literal("Fanis")
+- Matches ')'
+→ Returns FunctionCall(Variable('greet'), [Literal("Fanis")])
+
+==================================================
+FINAL AST RETURNED BY _program()
+==================================================
+
+Block([
+  Class("Person", body=[Assignment(Token(name), Literal("Fanis")), Assignment(Token(age), Literal(25))]),
+  Function(name='greet', params=['name'], body=[Print([Literal("Hello"), Variable(name)])]),
+  Assignment(Token(x), Literal(1)),
+  If(condition=Binary(Variable(x), <, Literal(5)), then=[Print([Literal("x is small")])], else=[Print([Literal("x is big")])]),
+  While(condition=Binary(Variable(x), <, Literal(4)), body=[Assignment(Token(x), Binary(Variable(x), +, Literal(1))), Print([Variable(x)])]),
+  FunctionCall(Variable('greet'), [Literal("Fanis"))
+])
+
+
